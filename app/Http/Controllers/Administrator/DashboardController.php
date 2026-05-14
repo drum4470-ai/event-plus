@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Http\Controllers\Administrator;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        // A2 ダッシュボード画面を表示
+        return Inertia::render('administrator/dashboard');
+    }
+}
