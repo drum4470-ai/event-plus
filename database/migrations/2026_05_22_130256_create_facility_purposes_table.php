@@ -6,24 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('facility_slots', function (Blueprint $table) {
-            $table->id('slot_id')->comment('時間枠ID');
+        Schema::create('facility_purposes', function (Blueprint $table) {
+            $table->id()->comment('施設目的ID');
+            // 施設への外部キー
             $table->foreignId('facility_id')->constrained('facilities', 'facility_id')->onDelete('cascade')->comment('施設ID');
-            $table->string('name', 20)->comment('時間枠名');
+            // 目的への外部キー
+            $table->foreignId('purpose_id')->constrained('purposes', 'purpose_id')->onDelete('cascade')->comment('目的ID');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('facility_slots');
+        Schema::dropIfExists('facility_purposes');
     }
 };

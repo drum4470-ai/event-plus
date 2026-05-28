@@ -10,11 +10,10 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
-use Laravel\Fortify\TwoFactorAuthenticatable;
 
 
 // #[Fillable(['name', 'email', 'password'])]
@@ -22,7 +21,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -37,8 +36,9 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
-    protected $table = 'users';
+
     protected $primaryKey = 'user_id';
+
     protected $fillable = [
         'name',
         'email',
@@ -49,10 +49,8 @@ class User extends Authenticatable
         'role_id',
 
     ];
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    protected $casts = [];
+
     public function application(): HasMany
     {
         return $this->hasMany(Application::class, 'user_id', 'user_id');

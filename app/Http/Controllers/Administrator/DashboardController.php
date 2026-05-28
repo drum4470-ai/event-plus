@@ -10,7 +10,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // A2 ダッシュボード画面を表示
         return Inertia::render('administrator/dashboard');
     }
 }

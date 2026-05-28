@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 💡 ここが 'equipment' を作る正しい処理になっている必要があります！
         Schema::create('equipment', function (Blueprint $table) {
-            $table->id('equipment_id')->comment('備品ID');
-            $table->string('name')->comment('備品名');
-            $table->foreignId('purpose_id')->constrained('purposes', 'purpose_id')->onDelete('cascade')->comment('目的ID');
-            $table->foreignId('facility_id')->constrained('facilities', 'facility_id')->onDelete('cascade')->comment('施設ID');
+            $table->id('equipment_id')->comment('設備ID'); // シーダーに合わせて主キーは equipment_id
+            $table->string('name')->comment('設備名');
             $table->timestamps();
         });
     }

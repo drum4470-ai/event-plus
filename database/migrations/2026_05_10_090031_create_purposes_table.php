@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 💡 目的マスタ（purposes）を作る正しい処理に修正します！
         Schema::create('purposes', function (Blueprint $table) {
-            $table->id('purpose_id')->comment('目的ID');
-            $table->string('name')->comment('目的名');
+            $table->id('purpose_id')->comment('目的ID'); // シーダー（MasterDataSeeder）の定義に合わせます
+            $table->string('name')->comment('目的名');    // 「会議」「ダンス」などの目的名
             $table->timestamps();
         });
     }
