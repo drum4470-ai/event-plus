@@ -1,58 +1,136 @@
 import React, { useState, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
+import CommonModal from '@/Components/CommonModal';
 
-export default function FacilityRegistration({ existingNames = [], buildings = [] }) {
+export default function FacilityRegistration({ existingNames = [], buildings = [], submitUrls = {} }) {
     const [selectedBuildingId, setSelectedBuildingId] = useState('');
+    const [confirmModal, setConfirmModal] = useState(false);
+    const [successModal, setSuccessModal] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
+    const [editModal, setEditModal] = useState(false);
+    const [editSuccessModal, setEditSuccessModal] = useState(false);
+    const [deleteFirstConfirm, setDeleteFirstConfirm] = useState(false);
+    const [deleteSecondConfirm, setDeleteSecondConfirm] = useState(false);
+    const [deleteSuccessModal, setDeleteSuccessModal] = useState(false);
     
-    const { data, setData, post, reset } = useForm({
+    const { data, setData, post, reset, processing } = useForm({
         name: '',
         building_id: '',
     });
 
-    // フィルタリング計算
-  const filteredFacilities = useMemo(() => {
-    if (!selectedBuildingId) return existingNames;
-    
-    // ここで比較の直前にログを出す
-    const filtered = existingNames.filter(f => {
-        const match = String(f.building_id) === String(selectedBuildingId);
-        if (!match) {
-            console.log(`判定結果: 不一致 (施設側のID: ${f.building_id}, 選択中のID: ${selectedBuildingId})`);
-        }
-        return match;
+    const { data: editData, setData: setEditData, put, reset: resetEdit, processing: editProcessing } = useForm({
+        name: '',
+        building_id: '',
     });
-    
-    console.log("フィルタリング後の件数:", filtered.length);
-    return filtered;
-}, [existingNames, selectedBuildingId]);
 
-    const handleRegister = () => {
-        post(route('administrator.facilities.store'), {
+    const { delete: destroy, processing: deleteProcessing } = useForm();
+
+    const filteredFacilities = useMemo(() => {
+        if (!selectedBuildingId) return existingNames;
+        return existingNames.filter(f => String(f.building_id) === String(selectedBuildingId));
+    }, [existingNames, selectedBuildingId]);
+
+    // 登録確認ボタンクリック
+    const handleRegisterClick = () => {
+        if (!data.name || !data.building_id) {
+            alert('施設名と建物を選択してください');
+            return;
+        }
+        setConfirmModal(true);
+    };
+
+    const [registeredName, setRegisteredName] = useState('');
+
+// 2. 登録処理を修正
+    const handleConfirmRegister = () => {
+        // 登録する瞬間、一時的に名前を保存する
+        const nameToSave = data.name; 
+        
+        post(submitUrls.facility_store || '/administrator/facilities', {
             onSuccess: () => {
+                setConfirmModal(false);
+                
+                // 成功した名前を State に入れる
+                setRegisteredName(nameToSave); 
+                
+                setSuccessModal(true);
                 reset();
-                setData('building_id', selectedBuildingId); // 登録後も選択状態を維持
+                setData('building_id', selectedBuildingId);
             },
         });
     };
 
-// 登録されているデータ全体を確認
-console.table(existingNames);
+    // 成功モーダル閉じるときはモーダルを閉じるだけ
+    const handleSuccessClose = () => {
+        setSuccessModal(false);
+    };
 
-// 現在のフィルタ条件と、実際のデータの中身を比較表示
-console.log("選択中のBuildingID:", selectedBuildingId);
-existingNames.forEach(f => {
-    console.log(`施設名: ${f.name} | 施設側のbuilding_id: ${f.building_id} (${typeof f.building_id})`);
-});
+    // 編集モーダルを開く
+    const handleEditClick = (item) => {
+        setEditingItem(item);
+        setEditData({
+            name: item.name,
+            building_id: item.building_id,
+        });
+        setEditModal(true);
+    };
 
+    // 編集確認
+    const handleConfirmEdit = () => {
+        const updateUrl = `${submitUrls.facility_update || '/administrator/facilities'}/${editingItem.facility_id}`;
+        put(updateUrl, {
+            onSuccess: () => {
+                setEditModal(false);
+                setEditSuccessModal(true);
+                resetEdit();
+            },
+        });
+    };
+
+    // 編集成功モーダル閉じる
+    const handleEditSuccessClose = () => {
+        setEditSuccessModal(false);
+        setEditingItem(null);
+    };
+
+    // 削除ボタンクリック（最初の確認）
+    const handleDeleteClick = () => {
+        setDeleteFirstConfirm(true);
+    };
+
+    // 最初の削除確認「本当に削除しますか？」
+    const handleFirstDeleteConfirm = () => {
+        setDeleteFirstConfirm(false);
+        setDeleteSecondConfirm(true);
+    };
+
+    // 二次削除確認「本当に本当に削除しますか？」
+    const handleSecondDeleteConfirm = () => {
+        const deleteUrl = `${submitUrls.facility_update || '/administrator/facilities'}/${editingItem.facility_id}`;
+        destroy(deleteUrl, {
+            onSuccess: () => {
+                setDeleteSecondConfirm(false);
+                setDeleteSuccessModal(true);
+                resetEdit();
+            },
+        });
+    };
+
+    // 削除成功モーダル閉じる
+    const handleDeleteSuccessClose = () => {
+        setDeleteSuccessModal(false);
+        setEditModal(false);
+        setEditingItem(null);
+    };
+
+    const buildingName = buildings.find(b => String(b.building_id || b.id) === String(selectedBuildingId))?.name;
 
     return (
         <div className="w-full">
             <h2 className="text-xl font-bold mb-4">施設マスタ</h2>
             
-            {/* 他のタブと同じスタイルの入力フォーム */}
+            {/* 入力フォーム */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
-                
-                {/* 1. 建物絞り込み・選択 */}
                 <select 
                     className="w-full p-3 rounded-lg border border-gray-200"
                     value={selectedBuildingId}
@@ -68,7 +146,6 @@ existingNames.forEach(f => {
                     ))}
                 </select>
 
-                {/* 2. 施設名入力 */}
                 <input
                     type="text"
                     value={data.name}
@@ -78,36 +155,172 @@ existingNames.forEach(f => {
                 />
 
                 <button 
-                    onClick={handleRegister}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg"
+                    onClick={handleRegisterClick}
+                    disabled={processing}
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
                 >
                     登録する
                 </button>
             </div>
             
-            {/* 3. 一覧表示 */}
+            {/* 一覧表示 */}
             <div className="mt-6">
                 <h3 className="font-bold text-gray-700 mb-2">登録済み一覧</h3>
-                {/* リスト表示部分の修正案 */}
                 <ul className="bg-white rounded-lg shadow-sm border border-gray-100 divide-y">
                     {filteredFacilities.map((item) => {
-                        // 施設IDから建物名を探す（buildings配列を利用）
-                        const buildingName = buildings.find(b => 
+                        const itemBuildingName = buildings.find(b => 
                             String(b.building_id || b.id) === String(item.building_id)
                         )?.name || '建物不明';
 
                         return (
-                            <li key={item.facility_id} className="p-3 flex justify-between items-center">
+                            <li 
+                                key={item.facility_id} 
+                                onClick={() => handleEditClick(item)}
+                                className="p-3 flex justify-between items-center cursor-pointer hover:bg-blue-50 transition-colors"
+                            >
                                 <span>{item.name}</span>
-                                {/* 建物名を横に表示する */}
                                 <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                    {buildingName}
+                                    {itemBuildingName}
                                 </span>
                             </li>
                         );
                     })}
                 </ul>
             </div>
+
+            {/* 登録確認モーダル */}
+            <CommonModal
+                isOpen={confirmModal}
+                onClose={() => setConfirmModal(false)}
+                title="施設を登録してもよろしいですか？"
+                confirmText="OK"
+                cancelText="キャンセル"
+                onConfirm={handleConfirmRegister}
+                isLoading={processing}
+            >
+                <div className="space-y-3">
+                    <div>
+                        <p className="text-sm text-gray-600">施設名</p>
+                        <p className="font-semibold text-gray-900">{data.name}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-600">建物</p>
+                        <p className="font-semibold text-gray-900">{buildingName}</p>
+                    </div>
+                </div>
+            </CommonModal>
+
+            {/* 登録成功モーダル */}
+            <CommonModal
+                isOpen={successModal}
+                onClose={handleSuccessClose}
+                title="✓ 登録しました"
+                cancelText="閉じる"
+            >
+                {/* data.name ではなく、保存した registeredName を使う */}
+                <p className="text-gray-700">施設「{registeredName}」を登録しました。</p>
+            </CommonModal>
+
+            {/* 編集モーダル */}
+            <CommonModal
+                isOpen={editModal}
+                onClose={() => setEditModal(false)}
+                title="施設情報を編集"
+                confirmText="編集確認"
+                cancelText="キャンセル"
+                onConfirm={handleConfirmEdit}
+                onDelete={handleDeleteClick}
+                isLoading={editProcessing}
+            >
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">施設名</label>
+                        <input
+                            type="text"
+                            value={editData.name}
+                            onChange={(e) => setEditData('name', e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">建物</label>
+                        <select
+                            value={editData.building_id}
+                            onChange={(e) => setEditData('building_id', e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                            <option value="">選択してください</option>
+                            {buildings.map(b => (
+                                <option key={b.building_id} value={b.building_id}>{b.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            </CommonModal>
+
+            {/* 編集成功モーダル */}
+            <CommonModal
+                isOpen={editSuccessModal}
+                onClose={handleEditSuccessClose}
+                title="✓ 編集しました"
+                cancelText="閉じる"
+            >
+                <p className="text-gray-700">施設「{editingItem?.name}」を編集しました。</p>
+            </CommonModal>
+
+            {/* 最初の削除確認モーダル */}
+            <CommonModal
+                isOpen={deleteFirstConfirm}
+                onClose={() => setDeleteFirstConfirm(false)}
+                title="⚠️ 本当に削除しますか？"
+                confirmText="削除する"
+                cancelText="キャンセル"
+                onConfirm={handleFirstDeleteConfirm}
+                isLoading={deleteProcessing}
+                isDanger={true}
+            >
+                <div className="space-y-3">
+                    <p className="text-gray-700">
+                        施設「<span className="font-bold text-red-600">{editingItem?.name}</span>」を削除します。
+                    </p>
+                    <p className="text-sm text-gray-600">
+                        この操作は取り消せません。本当に削除してもよろしいですか？
+                    </p>
+                </div>
+            </CommonModal>
+
+            {/* 二次削除確認モーダル */}
+            <CommonModal
+                isOpen={deleteSecondConfirm}
+                onClose={() => setDeleteSecondConfirm(false)}
+                title="⚠️ 最終確認：本当に削除しますか？"
+                confirmText="確定して削除"
+                cancelText="キャンセル"
+                onConfirm={handleSecondDeleteConfirm}
+                isLoading={deleteProcessing}
+                isDanger={true}
+            >
+                <div className="space-y-3">
+                    <p className="text-gray-700 font-bold">
+                        本当に本当に削除してもよろしいですか？
+                    </p>
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-700">
+                            「<span className="font-bold">{editingItem?.name}</span>」は削除されます。
+                        </p>
+                    </div>
+                </div>
+            </CommonModal>
+
+            {/* 削除成功モーダル */}
+            <CommonModal
+                isOpen={deleteSuccessModal}
+                onClose={handleDeleteSuccessClose}
+                title="✓ 削除しました"
+                cancelText="閉じる"
+            >
+                <p className="text-gray-700">施設「{editingItem?.name}」を削除しました。</p>
+            </CommonModal>
         </div>
     );
 }

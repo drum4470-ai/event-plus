@@ -5,7 +5,7 @@ import PurposeRegistration from './Masters/PurposeRegistration';
 import EquipmentRegistration from './Masters/EquipmentRegistration';
 import SlotRegistration from './Masters/SlotRegistration';
 
-export default function MasterManagement({ type, ...props }) {
+export default function MasterManagement({ type, submitUrls = {}, ...props }) {
     const [activeTab, setActiveTab] = useState('facility'); // 'facility' か 'building'
 
     const tabs = [
@@ -33,11 +33,11 @@ return (
             </div>
 
             {/* ここでアクティブなものだけを表示 */}
-            {activeTab === 'building' && <BuildingRegistration {...props} existingNames={props.buildings} />}
-            {activeTab === 'facility' && <FacilityRegistration {...props} existingNames={props.facilities} buildings={props.buildings} />}
-            {activeTab === 'purpose' && <PurposeRegistration {...props} existingNames={props.purposes} />}
-            {activeTab === 'equipment' && <EquipmentRegistration {...props} existingNames={props.equipments} />}
-            {activeTab === 'slot' && <SlotRegistration {...props} existingNames={props.slots} />}
+            {activeTab === 'building' && <BuildingRegistration {...props} existingNames={props.buildings} submitUrls={submitUrls} />}
+            {activeTab === 'facility' && <FacilityRegistration {...props} existingNames={props.facilities} buildings={props.buildings} submitUrls={submitUrls} />}
+            {activeTab === 'purpose' && <PurposeRegistration {...props} existingNames={props.purposes} submitUrls={submitUrls} />}
+            {activeTab === 'equipment' && <EquipmentRegistration {...props} existingNames={props.equipments} submitUrls={submitUrls} />}
+            {activeTab === 'slot' && <SlotRegistration {...props} existingNames={props.slots} submitUrls={submitUrls} />}
         </div>
     );
 }

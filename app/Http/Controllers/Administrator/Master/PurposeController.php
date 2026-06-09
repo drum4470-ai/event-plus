@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Purpose;
+use Inertia\Inertia;
 
 class PurposeController extends Controller
 {

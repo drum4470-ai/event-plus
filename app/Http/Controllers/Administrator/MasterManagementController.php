@@ -25,6 +25,19 @@ class MasterManagementController extends Controller
             'slots' => $slots,
             // ページロード時に表示するタブをURLパラメータ(tab)から取得
             'initialTab' => $request->query('tab', 'registration'),
+            // submitUrl情報をpropsで渡す
+            'submitUrls' => [
+                'facility_store' => '/administrator/facilities',
+                'facility_update' => '/administrator/facilities',
+                'building_store' => '/administrator/buildings',
+                'building_update' => '/administrator/buildings',
+                'purpose_store' => '/administrator/purposes',
+                'purpose_update' => '/administrator/purposes',
+                'equipment_store' => '/administrator/equipment',
+                'equipment_update' => '/administrator/equipment',
+                'slot_store' => '/administrator/slots',
+                'slot_update' => '/administrator/slots',
+            ],
         ]);
     }
 }

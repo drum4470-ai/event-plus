@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Facility;
+use App\Models\Building;
+use Inertia\Inertia;
 
 class FacilityController extends Controller
 {
@@ -55,8 +59,17 @@ class FacilityController extends Controller
         return redirect()->back();
     }
 
-    public function destroy($id) {
+   public function destroy($id) 
+    {
+        // 外部キーチェックを一時的にオフ
+        DB::statement('PRAGMA foreign_keys = OFF');
+        
+        // 削除処理
         Facility::where('facility_id', $id)->delete();
+        
+        // チェックを元に戻す
+        DB::statement('PRAGMA foreign_keys = ON');
+        
         return redirect()->back();
     }
 }

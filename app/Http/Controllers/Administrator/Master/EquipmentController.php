@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Equipment;
+use Inertia\Inertia;
 
 class EquipmentController extends Controller
 {
