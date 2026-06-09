@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm, Link } from '@inertiajs/react';
 
-export default function AccountRegistration({ roles }) {
+export default function AccountManagement({ roles }) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
