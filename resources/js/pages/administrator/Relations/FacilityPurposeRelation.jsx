@@ -9,7 +9,7 @@ export default function FacilityPurposeRelation({ existingNames = [] }) {
 
     // 2. 登録処理
     const handleRegister = () => {
-        post(route('administrator.facilitypurpose.store'), {
+        post(route('administrator.facilitypurposes.store'), {
             onSuccess: () => reset(),
         });
     };

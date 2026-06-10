@@ -11,7 +11,7 @@ export default function FacilitySlotsRelation({ existingNames = [] }) {
 
     // 2. 登録処理
     const handleRegister = () => {
-        post(route('administrator.slots.store'), {
+        post(route('administrator.facilityslots.store'), {
             onSuccess: () => reset(),
         });
     };

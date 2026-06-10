@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Administrator\Relation;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\FacilityPurpose;
 
 class FacilityPurposeController extends Controller
 {
@@ -55,7 +57,9 @@ class FacilityPurposeController extends Controller
     }
 
     public function destroy($id) {
+        DB::statement('PRAGMA foreign_keys = OFF');
         FacilityPurpose::where('id', $id)->delete();
+        DB::statement('PRAGMA foreign_keys = ON');
         return redirect()->back();
     }
 }

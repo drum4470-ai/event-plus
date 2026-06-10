@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 
-export default function RelationManagement({ existingNames = [] }) {
+export default function FacilityPurposeEquipmentRelation({ existingNames = [] }) {
     // 1. 開始時間と終了時間を管理
     const { data, setData, post, reset } = useForm({
 
@@ -9,7 +9,7 @@ export default function RelationManagement({ existingNames = [] }) {
 
     // 2. 登録処理
     const handleRegister = () => {
-        post(route('administrator.facilityslots.store'), {
+        post(route('administrator.facilityPurposeEquipments.store'), {
             onSuccess: () => reset(),
         });
     };

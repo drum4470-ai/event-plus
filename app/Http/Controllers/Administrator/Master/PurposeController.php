@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Purpose;
 use Inertia\Inertia;
 
@@ -50,7 +51,9 @@ class PurposeController extends Controller
     }
 
     public function destroy($id) {
+        DB::statement('PRAGMA foreign_keys = OFF');
         Purpose::where('purpose_id', $id)->delete();
+        DB::statement('PRAGMA foreign_keys = ON');
         return redirect()->back();
     }
 }

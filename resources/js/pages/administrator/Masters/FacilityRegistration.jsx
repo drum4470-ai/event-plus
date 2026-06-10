@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import CommonModal from '@/Components/CommonModal';
+import { calculateSimilarity } from "../../../Utils/levenshtein";
 
 export default function FacilityRegistration({ existingNames = [], buildings = [], submitUrls = {} }) {
     const [selectedBuildingId, setSelectedBuildingId] = useState('');
@@ -12,6 +13,9 @@ export default function FacilityRegistration({ existingNames = [], buildings = [
     const [deleteFirstConfirm, setDeleteFirstConfirm] = useState(false);
     const [deleteSecondConfirm, setDeleteSecondConfirm] = useState(false);
     const [deleteSuccessModal, setDeleteSuccessModal] = useState(false);
+    const [duplicateError, setDuplicateError] = useState('');
+    const [similarityWarning, setSimilarityWarning] = useState('');
+    const [registeredName, setRegisteredName] = useState('');
     
     const { data, setData, post, reset, processing } = useForm({
         name: '',
@@ -30,32 +34,59 @@ export default function FacilityRegistration({ existingNames = [], buildings = [
         return existingNames.filter(f => String(f.building_id) === String(selectedBuildingId));
     }, [existingNames, selectedBuildingId]);
 
+    // 入力値が変更されたときのバリデーション
+    const handleNameChange = (value) => {
+        setData('name', value);
+        setDuplicateError('');
+        setSimilarityWarning('');
+
+        if (!value.trim()) return;
+
+        // 完全一致をチェック
+        const isDuplicate = filteredFacilities.some(f => f.name === value);
+        if (isDuplicate) {
+            setDuplicateError('同じ名前の施設が既に登録されています');
+            return;
+        }
+
+        // 類似度をチェック
+        const similarItems = filteredFacilities.filter(f => {
+            const similarity = calculateSimilarity(f.name, value);
+            return similarity > 0.7 && f.name !== value;
+        });
+
+        if (similarItems.length > 0) {
+            setSimilarityWarning(`似た名前が存在しています: ${similarItems.map(f => f.name).join(', ')}`);
+        }
+    };
+
     // 登録確認ボタンクリック
     const handleRegisterClick = () => {
         if (!data.name || !data.building_id) {
             alert('施設名と建物を選択してください');
             return;
         }
+
+        if (duplicateError) {
+            alert('同じ名前の施設が既に存在しています。別の名前を入力してください。');
+            return;
+        }
+
         setConfirmModal(true);
     };
 
-    const [registeredName, setRegisteredName] = useState('');
-
-// 2. 登録処理を修正
+    // 登録確認OKボタンクリック
     const handleConfirmRegister = () => {
-        // 登録する瞬間、一時的に名前を保存する
-        const nameToSave = data.name; 
-        
+        const nameToSave = data.name;
         post(submitUrls.facility_store || '/administrator/facilities', {
             onSuccess: () => {
                 setConfirmModal(false);
-                
-                // 成功した名前を State に入れる
-                setRegisteredName(nameToSave); 
-                
+                setRegisteredName(nameToSave);
                 setSuccessModal(true);
                 reset();
                 setData('building_id', selectedBuildingId);
+                setDuplicateError('');
+                setSimilarityWarning('');
             },
         });
     };
@@ -149,14 +180,20 @@ export default function FacilityRegistration({ existingNames = [], buildings = [
                 <input
                     type="text"
                     value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
+                    onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="施設名を入力"
-                    className="w-full p-3 rounded-lg border border-gray-200"
+                    className={`w-full p-3 rounded-lg border ${duplicateError ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                 />
+                {duplicateError && (
+                    <p className="text-sm text-red-600 mt-2">❌ {duplicateError}</p>
+                )}
+                {similarityWarning && !duplicateError && (
+                    <p className="text-sm text-orange-600 mt-2">⚠️ {similarityWarning}</p>
+                )}
 
                 <button 
                     onClick={handleRegisterClick}
-                    disabled={processing}
+                    disabled={processing || !!duplicateError}
                     className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
                 >
                     登録する
@@ -207,6 +244,11 @@ export default function FacilityRegistration({ existingNames = [], buildings = [
                         <p className="text-sm text-gray-600">建物</p>
                         <p className="font-semibold text-gray-900">{buildingName}</p>
                     </div>
+                    {similarityWarning && (
+                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                            <p className="text-sm text-orange-700">⚠️ {similarityWarning}</p>
+                        </div>
+                    )}
                 </div>
             </CommonModal>
 

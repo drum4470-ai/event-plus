@@ -14,7 +14,7 @@ use App\Http\Controllers\Administrator\Relation\FacilitySlotController;
 use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
 use App\Http\Controllers\Administrator\DashboardController;
 use App\Http\Controllers\Administrator\MasterManagementController;
-use App\Http\Controllers\Administrator\RelationManagementnController;
+use App\Http\Controllers\Administrator\RelationManagementController;
 use App\Http\Controllers\Administrator\AccountController;
 
 
@@ -30,7 +30,9 @@ Route::prefix('administrator')->middleware([AdministratorSessionCheck::class])->
 
 
     Route::get('/master', [MasterManagementController::class, 'index'])->name('master.index');
-    
+    Route::get('/relation', [RelationManagementController::class, 'index'])->name('relation.index');
+    Route::get('/account', [AccountController::class, 'index'])->name('account.index');
+
     // ダッシュボード
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('administrator.dashboard');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('administrator.logout');

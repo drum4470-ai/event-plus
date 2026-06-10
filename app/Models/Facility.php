@@ -12,6 +12,7 @@ class Facility extends Model
 {
     use HasFactory;
 
+    protected $table = 'facilities';
     protected $primaryKey = 'facility_id';
     
     protected $fillable = [

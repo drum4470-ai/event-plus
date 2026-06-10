@@ -1,72 +1,43 @@
-import React from 'react';
-import { useForm } from '@inertiajs/react';
+import React, { useState } from 'react';
+import FacilityPurposeRelation from './Relations/FacilityPurposeRelation';
+import FacilityPurposeEquipmentRelation from './Relations/FacilityPurposeEquipmentRelation';
+import FacilitySlotRelation from './Relations/FacilitySlotRelation';
 
-export default function RelationManagement({ existingNames = [] }) {
-    // 1. 開始時間と終了時間を管理
-    const { data, setData, post, reset } = useForm({
+export default function RelationManagement({ buildings, facilities, equipments, purposes, slots, submitUrls = {} }) {
+    const [activeTab, setActiveTab] = useState('facility_purpose');
 
-    });
-
-    // 2. 登録処理
-    const handleRegister = () => {
-        post(route('administrator.facilityslots.store'), {
-            onSuccess: () => reset(),
-        });
-    };
+    const tabs = [
+        { id: 'facilityPurpose_equipment', label: '施設目的 × 備品' },
+        { id: 'facility_purpose', label: '施設 × 目的' },
+        { id: 'facility_slot', label: '施設 × スロット' },
+    ];
 
     return (
-        <div className="w-full">
-            <h2 className="text-xl font-bold mb-4">時間帯マスタ</h2>
+        <div className="p-8">
+            <h2 className="text-2xl font-bold mb-6">リレーション（紐付け）管理</h2>
             
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
-                <input
-                    type="text"
-                    value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
-                    placeholder="時間帯の名称（例：午前）"
-                    className="w-full p-3 rounded-lg border border-gray-200"
-                />
-                
-                <div className="flex gap-4">
-                    <input
-                        type="time"
-                        value={data.start_time}
-                        onChange={(e) => setData('start_time', e.target.value)}
-                        className="w-full p-3 rounded-lg border border-gray-200"
-                    />
-                    <span className="self-center">〜</span>
-                    <input
-                        type="time"
-                        value={data.end_time}
-                        onChange={(e) => setData('end_time', e.target.value)}
-                        className="w-full p-3 rounded-lg border border-gray-200"
-                    />
-                </div>
-
-                <button 
-                    onClick={handleRegister}
-                    className="w-full px-6 py-2 bg-indigo-600 text-white rounded-lg"
-                >
-                    登録する
-                </button>
+            <div className="flex space-x-4 border-b mb-6">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`pb-2 px-4 font-bold ${activeTab === tab.id ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-400'}`}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
             </div>
-            
-            <div className="mt-6">
-                <h3 className="font-bold text-gray-700 mb-2">登録済み時間帯一覧</h3>
-                <ul className="bg-white rounded-lg shadow-sm border border-gray-100 divide-y">
-                    {existingNames.length > 0 ? (
-                        existingNames.map((item) => (
-                            <li key={item.id} className="p-3 flex justify-between">
-                                <span>{item.name}</span>
-                                <span className="text-gray-500">
-                                    {item.start_time} 〜 {item.end_time}
-                                </span>
-                            </li>
-                        ))
-                    ) : (
-                        <li className="p-3 text-gray-400">データがありません</li>
-                    )}
-                </ul>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                {activeTab === 'facility_purpose' && (
+                    <FacilityPurposeRelation facilities={facilities} purposes={purposes} />
+                )}
+                {activeTab === 'facilityPurpose_equipment' && (
+                    <FacilityPurposeEquipmentRelation facilityPurposes={facilityPurposes} equipments={equipments} />
+                )}
+                {activeTab === 'facility_slot' && (
+                    <FacilitySlotRelation facilities={facilities} slots={slots} />
+                )}
             </div>
         </div>
     );

@@ -23,7 +23,7 @@ class MasterManagementController extends Controller
             'equipments' => $equipments,
             'purposes' => $purposes,
             'slots' => $slots,
-            // ページロード時に表示するタブをURLパラメータ(tab)から取得
+
             'initialTab' => $request->query('tab', 'registration'),
             // submitUrl情報をpropsで渡す
             'submitUrls' => [

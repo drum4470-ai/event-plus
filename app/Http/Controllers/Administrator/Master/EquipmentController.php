@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Equipment;
 use Inertia\Inertia;
 
@@ -50,7 +51,9 @@ class EquipmentController extends Controller
     }
 
     public function destroy($id) {
+        DB::statement('PRAGMA foreign_keys = OFF');
         Equipment::where('equipment_id', $id)->delete();
+        DB::statement('PRAGMA foreign_keys = ON');
         return redirect()->back();
     }
 
