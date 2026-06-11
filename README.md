@@ -57,14 +57,21 @@ npm run dev       # ターミナル2
 
 
 ### ディレクトリ構成
-   app/
- ├─ Http/Controllers/
- │   ├─ Administrator/  # 管理者向けビジネスロジック
- │   └─ User/           # 利用者向けビジネスロジック
-resources/
- └─ js/pages/           # Inertia.js Reactコンポーネント
-routes/
- └─ web.php             # ルーティング設定
+.
+├── app/
+│   ├── Http/Controllers/    # コントローラー：Admin用(Master/Relation)とUser用に分類
+│   └── Models/              # データベースモデル
+├── resources/
+│   ├── js/
+│   │   ├── Components/      # 再利用可能な共通UIコンポーネント
+│   │   ├── Hooks/           # 状態管理やバリデーションのカスタムフック
+│   │   ├── Layouts/         # ページレイアウト（Admin, Authenticated等）
+│   │   ├── Pages/           # Inertiaページ(Reactコンポーネント)
+│   │   └── Utils/           # 共通関数
+│   └── views/               # Bladeテンプレート
+├── routes/
+│   └── web.php              # ルーティング定義
+└── ...
 
 ###  構成は順次追加予定
 
