@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import CommonModal from '@/Components/CommonModal';
-import { calculateSimilarity } from "../../../Utils/levenshtein";
+import { calculateSimilarity } from "@/Utils/levenshtein";
 
 export default function EquipmentRegistration({ existingNames = [], submitUrls = {} }) {
     const [confirmModal, setConfirmModal] = useState(false);

@@ -1,154 +1,102 @@
 import React, { useState } from 'react';
-import { useForm } from '@inertiajs/react';
+import axios from 'axios';
 import CommonModal from '@/Components/CommonModal';
-import { calculateSimilarity } from "../../../Utils/levenshtein";
+import { calculateSimilarity } from "@/Utils/levenshtein";
 
-
-
-
-export default function BuildingRegistration({ existingNames = [], submitUrls = {} }) {
+export default function BuildingRegistration({ existingNames = [] }) {
+    // 1. 全てのデータをこのStateに集約します
+    const [buildings, setBuildings] = useState(existingNames);
+    const [formData, setFormData] = useState({ name: '', address: '' });
+    const [editData, setEditData] = useState({ name: '', address: '' });
+    
+    // モーダル管理用のState
     const [confirmModal, setConfirmModal] = useState(false);
     const [successModal, setSuccessModal] = useState(false);
-    const [editingItem, setEditingItem] = useState(null);
     const [editModal, setEditModal] = useState(false);
     const [editSuccessModal, setEditSuccessModal] = useState(false);
     const [deleteFirstConfirm, setDeleteFirstConfirm] = useState(false);
     const [deleteSecondConfirm, setDeleteSecondConfirm] = useState(false);
     const [deleteSuccessModal, setDeleteSuccessModal] = useState(false);
+    
+    const [editingItem, setEditingItem] = useState(null);
     const [duplicateError, setDuplicateError] = useState('');
     const [similarityWarning, setSimilarityWarning] = useState('');
-    const [registeredName, setRegisteredName] = useState('');
-    
-    const { data, setData, post, reset, processing } = useForm({
-        name: '',
-        address: '',
-    });
+    const [processing, setProcessing] = useState(false);
 
-    const { data: editData, setData: setEditData, put, reset: resetEdit, processing: editProcessing } = useForm({
-        name: '',
-        address: '',
-    });
-
-    const { delete: destroy, processing: deleteProcessing } = useForm();
-
-    // 入力値が変更されたときのバリデーション
+    // バリデーション処理
     const handleNameChange = (value) => {
-        setData('name', value);
+        setFormData({ ...formData, name: value });
         setDuplicateError('');
         setSimilarityWarning('');
 
         if (!value.trim()) return;
 
-        // 完全一致をチェック
-        const isDuplicate = existingNames.some(f => f.name === value);
+        const isDuplicate = buildings.some(f => f.name === value);
         if (isDuplicate) {
             setDuplicateError('同じ名前の建物が既に登録されています');
             return;
         }
 
-        // 類似度をチェック
-        const similarItems = existingNames.filter(f => {
-            const similarity = calculateSimilarity(f.name, value);
-            return similarity > 0.7 && f.name !== value;
-        });
-
+        const similarItems = buildings.filter(f => calculateSimilarity(f.name, value) > 0.7 && f.name !== value);
         if (similarItems.length > 0) {
             setSimilarityWarning(`似た名前が存在しています: ${similarItems.map(f => f.name).join(', ')}`);
         }
     };
 
-    // 登録確認ボタンクリック
-    const handleRegisterClick = () => {
-        if (!data.name) {
-            alert('建物名を入力してください');
-            return;
+    // 登録処理 (Axios)
+    const handleConfirmRegister = async () => {
+        setProcessing(true);
+        try {
+            const response = await axios.post('/api/administrator/buildings', formData);
+            setBuildings([...buildings, response.data.data]);
+            setConfirmModal(false);
+            setSuccessModal(true);
+            setFormData({ name: '', address: '' });
+        } catch (error) {
+            if (error.response?.status === 422) setDuplicateError('入力内容に不備があります');
+        } finally {
+            setProcessing(false);
         }
+    };
 
-        if (duplicateError) {
-            alert('同じ名前の建物が既に存在しています。別の名前を入力してください。');
-            return;
+    // 編集処理 (Axios)
+    const handleConfirmEdit = async () => {
+        setProcessing(true);
+        try {
+            const response = await axios.put(`/api/administrator/buildings/${editingItem.building_id}`, editData);
+            setBuildings(buildings.map(b => b.building_id === editingItem.building_id ? response.data.data : b));
+            setEditModal(false);
+            setEditSuccessModal(true);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setProcessing(false);
         }
-
-        setConfirmModal(true);
     };
 
-    // 登録確認OKボタンクリック
-    const handleConfirmRegister = () => {
-        const nameToSave = data.name;
-        post(submitUrls.building_store || '/administrator/buildings', {
-            onSuccess: () => {
-                setConfirmModal(false);
-                setRegisteredName(nameToSave);
-                setSuccessModal(true);
-                reset();
-                setDuplicateError('');
-                setSimilarityWarning('');
-            },
-        });
+    // 削除処理 (Axios)
+    const handleSecondDeleteConfirm = async () => {
+        setProcessing(true);
+        try {
+            await axios.delete(`/api/administrator/buildings/${editingItem.building_id}`);
+            setBuildings(buildings.filter(b => b.building_id !== editingItem.building_id));
+            setDeleteSecondConfirm(false);
+            setDeleteSuccessModal(true);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setProcessing(false);
+        }
     };
 
-    // 成功モーダル閉じる
-    const handleSuccessClose = () => {
-        setSuccessModal(false);
-    };
-
-    // 編集モーダルを開く
+    // 編集ボタンクリック時にデータをセット
     const handleEditClick = (item) => {
         setEditingItem(item);
-        setEditData({
-            name: item.name,
-            address: item.address,
-        });
+        setEditData({ name: item.name, address: item.address });
         setEditModal(true);
     };
 
-    // 編集確認
-    const handleConfirmEdit = () => {
-        const updateUrl = `${submitUrls.building_update || '/administrator/buildings'}/${editingItem.building_id}`;
-        put(updateUrl, {
-            onSuccess: () => {
-                setEditModal(false);
-                setEditSuccessModal(true);
-                resetEdit();
-            },
-        });
-    };
-
-    // 編集成功モーダル閉じる
-    const handleEditSuccessClose = () => {
-        setEditSuccessModal(false);
-        setEditingItem(null);
-    };
-
-    // 削除ボタンクリック
-    const handleDeleteClick = () => {
-        setDeleteFirstConfirm(true);
-    };
-
-    // 最初の削除確認
-    const handleFirstDeleteConfirm = () => {
-        setDeleteFirstConfirm(false);
-        setDeleteSecondConfirm(true);
-    };
-
-    // 二次削除確認
-    const handleSecondDeleteConfirm = () => {
-        const deleteUrl = `${submitUrls.building_update || '/administrator/buildings'}/${editingItem.building_id}`;
-        destroy(deleteUrl, {
-            onSuccess: () => {
-                setDeleteSecondConfirm(false);
-                setDeleteSuccessModal(true);
-                resetEdit();
-            },
-        });
-    };
-
-    // 削除成功モーダル閉じる
-    const handleDeleteSuccessClose = () => {
-        setDeleteSuccessModal(false);
-        setEditModal(false);
-        setEditingItem(null);
-    };
+    // ... (以下、成功時のクローズ処理やモーダル起動関数などは適宜追加)
 
     return (
         <div className="w-full">

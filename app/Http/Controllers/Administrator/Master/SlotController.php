@@ -35,30 +35,20 @@ class SlotController extends Controller
     }
 
     public function store(Request $request) {
-        // 必要であれば名前などのバリデーションを追加してください
-        $validated = $request->validate([
-            'name' => 'required|string|max:255', 
-        ]);
-        
-        Slot::create($validated);
-        return redirect()->route('admin.slots.index'); // リダイレクト先は適宜調整してください
+        Slot::create($request->all());
+        return redirect()->back();
     }
 
     public function update(Request $request, $id) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-        
-        Slot::where('slot_id', $id)->update($validated);
-        return redirect()->route('admin.slots.index');
+
+        Slot::where('slot_id', $id)->update($request->all());
+        return redirect()->back();
     }
 
     public function destroy($id) {
-        // 外部キー制約の制御は本来DB設計側で管理すべきですが、現状維持で記述します
         DB::statement('PRAGMA foreign_keys = OFF');
         Slot::where('slot_id', $id)->delete();
         DB::statement('PRAGMA foreign_keys = ON');
-        
         return redirect()->back();
     }
 }

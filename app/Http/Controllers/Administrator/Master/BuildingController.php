@@ -4,59 +4,54 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Building;
-use Inertia\Inertia;
+use App\Http\Resources\BuildingResource;
 
 class BuildingController extends Controller
 {
+    // 一覧取得
     public function index() {
-        return Inertia::render('administrator/building/index', [
-            'items' => Building::all()
-        ]);
-    }
-    
-    public function create() {
-        return Inertia::render('administrator/building/create');
+        return BuildingResource::collection(Building::all());
     }
 
+    // 特定データの取得（詳細・編集の初期値用）
     public function show($id) {
         $building = Building::findOrFail($id);
-        return Inertia::render('administrator/building/show', [
-            'item' => $building
-        ]);
+        return new BuildingResource($building);
     }
-    public function edit($id) {
+
+    // 新規登録
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|min:4|max:255',
+            'address' => 'required|string',
+        ]);
+
+        $building = Building::create($validated);
+        return new BuildingResource($building);
+    }
+
+    // 更新
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|min:4|max:255',
+            'address' => 'required|string',
+        ]);
+
         $building = Building::findOrFail($id);
-        return Inertia::render('administrator/building/edit', [
-            'item' => $building
-        ]);
+        $building->update($validated);
+
+        return new BuildingResource($building);
     }
 
+    // 削除
+    public function destroy($id)
+    {
+        $building = Building::findOrFail($id);
+        $building->delete();
 
-
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string',
-        ]);
-        Building::create($validated);
-        return redirect()->back();
-    }
-
-    public function update(Request $request, $id) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string',
-        ]);
-        Building::where('building_id', $id)->update($validated);
-        return redirect()->back();
-    }
-
-    public function destroy($id) {
-        DB::statement('PRAGMA foreign_keys = OFF');
-        Building::where('building_id', $id)->delete();
-        DB::statement('PRAGMA foreign_keys = ON');
-        return redirect()->back();
+        return response()->json(['message' => '削除しました'], 200);
     }
 }

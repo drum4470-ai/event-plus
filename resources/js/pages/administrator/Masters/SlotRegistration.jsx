@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import CommonModal from '@/Components/CommonModal';
-import { calculateSimilarity } from "../../../Utils/levenshtein";
-
+import { calculateSimilarity } from "@/Utils/levenshtein";
 
 export default function SlotRegistration({ existingNames = [], submitUrls = {} }) {
     const [confirmModal, setConfirmModal] = useState(false);
@@ -19,14 +18,10 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
     
     const { data, setData, post, reset, processing } = useForm({
         name: '',
-        start_time: '',
-        end_time: '',
     });
 
     const { data: editData, setData: setEditData, put, reset: resetEdit, processing: editProcessing } = useForm({
         name: '',
-        start_time: '',
-        end_time: '',
     });
 
     const { delete: destroy, processing: deleteProcessing } = useForm();
@@ -59,8 +54,8 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
 
     // 登録確認ボタンクリック
     const handleRegisterClick = () => {
-        if (!data.name || !data.start_time || !data.end_time) {
-            alert('時間帯の名称と開始時間、終了時間を入力してください');
+        if (!data.name) {
+            alert('時間帯の名称を入力してください');
             return;
         }
 
@@ -97,8 +92,6 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
         setEditingItem(item);
         setEditData({
             name: item.name,
-            start_time: item.start_time,
-            end_time: item.end_time,
         });
         setEditModal(true);
     };
@@ -159,26 +152,12 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
                 <input
                     type="text"
                     value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
+                    onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="時間帯の名称（例：午前）"
                     className="w-full p-3 rounded-lg border border-gray-200"
                 />
                 
-                <div className="flex gap-4">
-                    <input
-                        type="time"
-                        value={data.start_time}
-                        onChange={(e) => setData('start_time', e.target.value)}
-                        className="w-full p-3 rounded-lg border border-gray-200"
-                    />
-                    <span className="self-center">〜</span>
-                    <input
-                        type="time"
-                        value={data.end_time}
-                        onChange={(e) => setData('end_time', e.target.value)}
-                        className="w-full p-3 rounded-lg border border-gray-200"
-                    />
-                </div>
+
 
                 <button 
                     onClick={handleRegisterClick}
@@ -200,9 +179,7 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
                                 className="p-3 flex justify-between cursor-pointer hover:bg-blue-50 transition-colors"
                             >
                                 <span>{item.name}</span>
-                                <span className="text-gray-500">
-                                    {item.start_time} 〜 {item.end_time}
-                                </span>
+                               
                             </li>
                         ))
                     ) : (
@@ -226,10 +203,6 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
                         <p className="text-sm text-gray-600">時間帯名</p>
                         <p className="font-semibold text-gray-900">{data.name}</p>
                     </div>
-                    <div>
-                        <p className="text-sm text-gray-600">時間</p>
-                        <p className="font-semibold text-gray-900">{data.start_time} 〜 {data.end_time}</p>
-                    </div>
                 </div>
             </CommonModal>
 
@@ -240,7 +213,7 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
                 title="✓ 登録しました"
                 cancelText="閉じる"
             >
-                <p className="text-gray-700">時間帯「{data.name}」を登録しました。</p>
+                <p className="text-gray-700">時間帯「{registeredName}」を登録しました。</p>
             </CommonModal>
 
             {/* 編集モーダル */}
@@ -264,24 +237,7 @@ export default function SlotRegistration({ existingNames = [], submitUrls = {} }
                             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">開始時間</label>
-                        <input
-                            type="time"
-                            value={editData.start_time}
-                            onChange={(e) => setEditData('start_time', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">終了時間</label>
-                        <input
-                            type="time"
-                            value={editData.end_time}
-                            onChange={(e) => setEditData('end_time', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                    </div>
+                    
                 </div>
             </CommonModal>
 

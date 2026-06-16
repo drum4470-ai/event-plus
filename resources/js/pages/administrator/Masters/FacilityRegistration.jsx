@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import CommonModal from '@/Components/CommonModal';
-import { calculateSimilarity } from "../../../Utils/levenshtein";
+import { calculateSimilarity } from "@/Utils/levenshtein";
 
 export default function FacilityRegistration({ existingNames = [], buildings = [], submitUrls = {} }) {
     const [selectedBuildingId, setSelectedBuildingId] = useState('');

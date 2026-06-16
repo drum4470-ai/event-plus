@@ -1,16 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdministratorSessionCheck;
-
-use App\Http\Controllers\Administrator\Master\FacilityController;
-use App\Http\Controllers\Administrator\Master\BuildingController;
-use App\Http\Controllers\Administrator\Master\EquipmentController;
-use App\Http\Controllers\Administrator\Master\PurposeController;
-use App\Http\Controllers\Administrator\Master\SlotController;
-use App\Http\Controllers\Administrator\Relation\FacilityPurposeEquipmentController;
-use App\Http\Controllers\Administrator\Relation\FacilityPurposeController;
-use App\Http\Controllers\Administrator\Relation\FacilitySlotController;
-
 use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
 use App\Http\Controllers\Administrator\DashboardController;
 use App\Http\Controllers\Administrator\MasterManagementController;
@@ -35,19 +25,9 @@ Route::prefix('administrator')->middleware([AdministratorSessionCheck::class])->
 
     // ダッシュボード
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('administrator.dashboard');
-    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('administrator.logout');
+    // Route::post('/logout', [AdminAuthController::class, 'logout'])->name('administrator.logout');未実装
 
-    // リソース管理 (これらはこのままでOK: /administrator/facilities になる)
-    Route::resource('facilities', FacilityController::class);
-    Route::resource('buildings', BuildingController::class);
-    Route::resource('equipment', EquipmentController::class);
-    Route::resource('purposes', PurposeController::class);
-    Route::resource('slots', SlotController::class);
 
-    // リレーション管理
-    Route::resource('facility-purpose-equipment', FacilityPurposeEquipmentController::class);
-    Route::resource('facility-purpose', FacilityPurposeController::class);
-    Route::resource('facility-slot', FacilitySlotController::class);
 });
 
 

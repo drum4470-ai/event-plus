@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
+import CommonModal from '@/Components/CommonModal';
 
 export default function FacilityPurposeEquipmentRelation({ existingNames = [] }) {
     // 1. 開始時間と終了時間を管理
