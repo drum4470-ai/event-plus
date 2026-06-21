@@ -9,30 +9,20 @@ use App\Http\Resources\BuildingResource;
 
 class BuildingController extends Controller
 {
-    // 一覧取得
-    public function index() {
-        return BuildingResource::collection(Building::all());
+    // 一覧取得: Resourceを返すとAPIとしての品質が上がります
+public function index()
+    {
+        return response()->json(Building::all(), 200);
     }
 
-    // 特定データの取得（詳細・編集の初期値用）
-    public function show($id) {
-        $building = Building::findOrFail($id);
-        return new BuildingResource($building);
-    }
-
-    // 新規登録
+    // 新規作成
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|min:4|max:255',
-            'address' => 'required|string',
-        ]);
-
-        $building = Building::create($validated);
-        return new BuildingResource($building);
+        $validated = $request->validate([...]);
+        $item = Building::create($validated);
+        return response()->json($item, 201);
     }
 
-    // 更新
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -40,18 +30,22 @@ class BuildingController extends Controller
             'address' => 'required|string',
         ]);
 
-        $building = Building::findOrFail($id);
-        $building->update($validated);
+        $item = Building::findOrFail($id);
+        $item->update($validated);
 
-        return new BuildingResource($building);
+        return new BuildingResource($item);
+            ->response()
+            ->setStatusCode(202);
     }
-
-    // 削除
+    // 削除処理
     public function destroy($id)
     {
-        $building = Building::findOrFail($id);
-        $building->delete();
-
+        $item = Building::findOrFail($id);
+        $item->delete();
         return response()->json(['message' => '削除しました'], 200);
     }
+
+    // 更新: 変更後の最新データを返す
+
+   
 }

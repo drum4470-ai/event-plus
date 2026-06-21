@@ -4,12 +4,23 @@ namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    /**
+     * ダッシュボードに必要なデータを JSON で返却する
+     */
+    public function index(Request $request)
     {
-        return Inertia::render('Administrator/Dashboard');
+        // 必要な統計データや情報を配列で取得
+        $data = [
+            'title' => 'ダッシュボード',
+            'status' => 'success',
+            'message' => '管理者向け情報を取得しました',
+            // 実際にはここに統計データなどを入れる
+            // 'stats' => Building::count(), 
+        ];
+
+        return response()->json($data, 200);
     }
 }

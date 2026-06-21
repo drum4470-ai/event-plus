@@ -4,58 +4,42 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\Equipment;
-use Inertia\Inertia;
+use App\Models\Equipment; // 仮のモデル名
+use App\Http\Resources\EquipmentResource;
 
-class EquipmentController extends Controller
+class EquipmentManagementController extends Controller
 {
-    public function index() {
-        return Inertia::render('administrator/equipment/index', [
-            'items' => Equipment::all()
-        ]);
+    public function index()
+    {
+        return response()->json(Equipment::all(), 200);
     }
 
-    public function create() {
-        return Inertia::render('administrator/equipment/create');
+    // 新規作成
+    public function store(Request $request)
+    {
+        $validated = $request->validate([...]);
+        $item = Equipment::create($validated);
+        return response()->json($item, 201);
     }
 
-    public function show($id) {
-        $equipment = Equipment::findOrFail($id);
-        return Inertia::render('administrator/equipment/show', [
-            'item' => $equipment
-        ]);
-    }
-
-    public function edit($id) {
-        $equipment = Equipment::findOrFail($id);
-        return Inertia::render('administrator/equipment/edit', [
-            'item' => $equipment
-        ]);
-    }
-
-    public function store(Request $request) {
+    public function update(Request $request, $id)
+    {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:4|max:255',
         ]);
-        Equipment::create($validated);
-        return redirect()->back();
+
+        $item = Equipment::findOrFail($id);
+        $item->update($validated);
+
+        return new EquipmentResource($item);
+            ->response()
+            ->setStatusCode(202);
     }
-
-    public function update(Request $request, $id) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-        Equipment::where('equipment_id', $id)->update($validated);
-        return redirect()->back();
+    // 削除処理
+    public function destroy($id)
+    {
+        $item = Equipment::findOrFail($id);
+        $item->delete();
+        return response()->json(['message' => '削除しました'], 200);
     }
-
-    public function destroy($id) {
-        DB::statement('PRAGMA foreign_keys = OFF');
-        Equipment::where('equipment_id', $id)->delete();
-        DB::statement('PRAGMA foreign_keys = ON');
-        return redirect()->back();
-    }
-
-
 }

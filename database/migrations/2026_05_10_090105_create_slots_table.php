@@ -13,7 +13,7 @@ return new class extends Migration
     {
         // 💡 時間枠マスタ（slots）を作る正しい処理に修正します！
         Schema::create('slots', function (Blueprint $table) {
-            $table->id('slot_id')->comment('時間枠ID'); // シーダー（MasterDataSeeder）の定義に合わせます
+            $table->id()->comment('時間枠ID'); // シーダー（MasterDataSeeder）の定義に合わせます
             $table->string('name')->comment('時間枠名'); // 「午前」「午後」「夜間」などの枠名
             $table->timestamps();
         });

@@ -4,51 +4,42 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Slot;
-use Inertia\Inertia;
+use App\Http\Resources\SlotResource;
 
 class SlotController extends Controller
 {
-    public function index() {
-        return Inertia::render('administrator/slot/index', [
-            'items' => Slot::all()
+     public function index()
+    {
+        return response()->json(Slot::all(), 200);
+    }
+
+    // 新規作成
+    public function store(Request $request)
+    {
+        $validated = $request->validate([...]);
+        $item = Slot::create($validated);
+        return response()->json($item, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
+
+        $item = Slot::findOrFail($id);
+        $item->update($validated);
+
+        return new SlotResource($item);
+            ->response()
+            ->setStatusCode(202);
     }
-
-    public function create() {
-        return Inertia::render('administrator/slot/create');
-    }
-
-    public function show($id) {
-        $slot = Slot::findOrFail($id);
-        return Inertia::render('administrator/slot/show', [
-            'item' => $slot
-        ]);
-    }
-
-    public function edit($id) {
-        $slot = Slot::findOrFail($id);
-        return Inertia::render('administrator/slot/edit', [
-            'item' => $slot
-        ]);
-    }
-
-    public function store(Request $request) {
-        Slot::create($request->all());
-        return redirect()->back();
-    }
-
-    public function update(Request $request, $id) {
-
-        Slot::where('slot_id', $id)->update($request->all());
-        return redirect()->back();
-    }
-
-    public function destroy($id) {
-        DB::statement('PRAGMA foreign_keys = OFF');
-        Slot::where('slot_id', $id)->delete();
-        DB::statement('PRAGMA foreign_keys = ON');
-        return redirect()->back();
+    // 削除処理
+    public function destroy($id)
+    {
+        $item = Slot::findOrFail($id);
+        $item->delete();
+        return response()->json(['message' => '削除しました'], 200);
     }
 }

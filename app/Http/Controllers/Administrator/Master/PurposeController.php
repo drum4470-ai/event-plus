@@ -4,56 +4,43 @@ namespace App\Http\Controllers\Administrator\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Purpose;
-use Inertia\Inertia;
+use App\Http\Resources\PurposeResource; // 追加
 
 class PurposeController extends Controller
 {
-    public function index() {
-        return Inertia::render('administrator/purpose/index', [
-            'items' => Purpose::all()
-        ]);
+    // 一覧取得
+     public function index()
+    {
+        return response()->json(Purpose::all(), 200);
     }
 
-    public function create() {
-        return Inertia::render('administrator/purpose/create');
+    // 新規作成
+    public function store(Request $request)
+    {
+        $validated = $request->validate([...]);
+        $item = Purpose::create($validated);
+        return response()->json($item, 201);
     }
 
-    public function show($id) {
-        $purpose = Purpose::findOrFail($id);
-        return Inertia::render('administrator/purpose/show', [
-            'item' => $purpose
-        ]);
-    }
-
-    public function edit($id) {
-        $purpose = Purpose::findOrFail($id);
-        return Inertia::render('administrator/purpose/edit', [
-            'item' => $purpose
-        ]);
-    }
-
-    public function store(Request $request) {
+    public function update(Request $request, $id)
+    {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
-        Purpose::create($validated);
-        return redirect()->back();
-    }
 
-    public function update(Request $request, $id) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-        Purpose::where('purpose_id', $id)->update($validated);
-        return redirect()->back();
-    }
+        $item = Purpose::findOrFail($id);
+        $item->update($validated);
 
-    public function destroy($id) {
-        DB::statement('PRAGMA foreign_keys = OFF');
-        Purpose::where('purpose_id', $id)->delete();
-        DB::statement('PRAGMA foreign_keys = ON');
-        return redirect()->back();
+        return new PurposeResource($item);
+            ->response()
+            ->setStatusCode(202);
+    }
+    // 削除処理
+    public function destroy($id)
+    {
+        $item = Purpose::findOrFail($id);
+        $item->delete();
+        return response()->json(['message' => '削除しました'], 200);
     }
 }

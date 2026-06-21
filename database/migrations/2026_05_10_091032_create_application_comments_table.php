@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('application_comments', function (Blueprint $table) {
-            $table->id('comment_id')->comment('コメントID');
+            $table->id()->comment('コメントID');
             $table->foreignId('application_id')->constrained('applications', 'application_id')->onDelete('cascade')->comment('申請ID');
             $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade')->comment('ユーザーID');
             $table->text('body')->comment('本文');
