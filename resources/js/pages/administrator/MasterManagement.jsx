@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BuildingRegistration from './Masters/BuildingRegistration';
 import FacilityRegistration from './Masters/FacilityRegistration';
 import PurposeRegistration from './Masters/PurposeRegistration';
@@ -7,6 +7,29 @@ import SlotRegistration from './Masters/SlotRegistration';
 
 export default function MasterManagement({ type, submitUrls = {}, ...props }) {
     const [activeTab, setActiveTab] = useState('facility'); // 'facility' か 'building'
+    const [data, setData] = useState({
+        buildings: [],
+        facilities: [],
+        purposes: [],
+        equipment: [],
+        slots: []
+    });
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Scribeで確認したAPIを叩く
+                const res = await api.get('/administrator/master'); // 全マスタを返すAPIを作るか、個別に叩く
+                setData(res.data);
+            } catch (error) {
+                console.error("データ取得失敗:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+    if (loading) return <div>読み込み中...</div>;
 
     const tabs = [
         { id: 'facility', label: '施設マスタ' },
@@ -33,11 +56,11 @@ return (
             </div>
 
             {/* ここでアクティブなものだけを表示 */}
-            {activeTab === 'building' && <BuildingRegistration {...props} existingNames={props.buildings} submitUrls={submitUrls} />}
-            {activeTab === 'facility' && <FacilityRegistration {...props} existingNames={props.facilities} buildings={props.buildings} submitUrls={submitUrls} />}
-            {activeTab === 'purpose' && <PurposeRegistration {...props} existingNames={props.purposes} submitUrls={submitUrls} />}
-            {activeTab === 'equipment' && <EquipmentRegistration {...props} existingNames={props.equipments} submitUrls={submitUrls} />}
-            {activeTab === 'slot' && <SlotRegistration {...props} existingNames={props.slots} submitUrls={submitUrls} />}
+            {activeTab === 'building' && <BuildingRegistration existingNames={data.buildings} />}
+            {activeTab === 'facility' && <FacilityRegistration existingNames={data.facilities} buildings={data.buildings}/>}
+            {activeTab === 'purpose' && <PurposeRegistration existingNames={data.purposes} />}
+            {activeTab === 'equipment' && <EquipmentRegistration existingNames={data.equipment} />}
+            {activeTab === 'slot' && <SlotRegistration existingNames={data.slots} />}
         </div>
     );
 }

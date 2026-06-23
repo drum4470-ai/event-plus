@@ -10,6 +10,7 @@ use App\Models\Building;
 
 class FacilityController extends Controller
 {
+    
     public function index()
     {
         return response()->json(Facility::all(), 200);
@@ -18,7 +19,10 @@ class FacilityController extends Controller
     // 新規作成
     public function store(Request $request)
     {
-        $validated = $request->validate([...]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+
+        ]);
         $item = Facility::create($validated);
         return response()->json($item, 201);
     }
@@ -33,9 +37,7 @@ class FacilityController extends Controller
         $item = Facility::findOrFail($id);
         $item->update($validated);
 
-        return new FacilityResource($item);
-            ->response()
-            ->setStatusCode(202);
+        return (new FacilityResource($item))->response()->setStatusCode(202);
     }
     // 削除処理
     public function destroy($id)

@@ -17,7 +17,7 @@ class MasterManagementController extends Controller
         $purposes = \App\Models\Purpose::all()->sortBy('name')->values();
         $slots = \App\Models\Slot::all()->sortBy('name')->values();
 
-        return Inertia::render('Administrator/MasterManagement', [
+        return response()->json([
             'buildings' => $buildings,
             'facilities' => $facilities,
             'equipments' => $equipments,

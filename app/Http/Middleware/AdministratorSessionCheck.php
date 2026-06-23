@@ -3,21 +3,22 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class AdministratorSessionCheck
 {
-
     public function handle(Request $request, Closure $next)
     {
-        // ログインページへのアクセスなら、チェックせずに通す（これでループしない）
+        // ログインルートは通す
         if ($request->is('administrator/login*')) {
             return $next($request);
         }
 
-        // セッションがあるかチェック
-        if (!session()->has('is_admin')) {
-            return redirect()->route('administrator.login');
+        // API通信の場合：JSONで401エラーを返す
+        if (!Auth::guard('admin')->check()) {
+            return response()->json([
+                'message' => 'ログインセッションが切れています。再度ログインしてください。'
+            ], 401);
         }
 
         return $next($request);

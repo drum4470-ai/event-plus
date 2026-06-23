@@ -37,12 +37,45 @@ return [
     |
     */
 
+    // 'guards' => [
+    //     'web' => [
+    //         'driver' => 'session',
+    //         'provider' => 'users',
+    //     ],
+    // ],
+    // ↑もともとあったほう　↓認証で使うほう
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    'admin' => [
+        'driver' => 'session',
+        'provider' => 'admins', // ここで指定したプロバイダの設定が必要
     ],
+],// config/auth.php
+
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+
+    // ここを追加・確認
+    'admin' => [
+        'driver' => 'session',
+        'provider' => 'admins', // ← ここで 'admins' というプロバイダを指定
+    ],
+],
+
+'providers' => [
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\User::class,
+    ],
+
+    // ここを追加
+//     'admins' => [
+//         'driver' => 'eloquent',
+//         'model' => App\Models\Admin::class, // ← Adminモデルを指定
+//     ],
+// ],
 
     /*
     |--------------------------------------------------------------------------
@@ -61,11 +94,11 @@ return [
     |
     */
 
-    'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
-        ],
+    // 'providers' => [
+    //     'users' => [
+    //         'driver' => 'eloquent',
+    //         'model' => env('AUTH_MODEL', User::class),
+    //     ],
 
         // 'users' => [
         //     'driver' => 'database',

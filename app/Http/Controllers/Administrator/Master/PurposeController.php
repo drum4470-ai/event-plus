@@ -18,7 +18,9 @@ class PurposeController extends Controller
     // 新規作成
     public function store(Request $request)
     {
-        $validated = $request->validate([...]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
         $item = Purpose::create($validated);
         return response()->json($item, 201);
     }
@@ -32,9 +34,7 @@ class PurposeController extends Controller
         $item = Purpose::findOrFail($id);
         $item->update($validated);
 
-        return new PurposeResource($item);
-            ->response()
-            ->setStatusCode(202);
+        return (new PurposeResource($item))->response()->setStatusCode(202);
     }
     // 削除処理
     public function destroy($id)

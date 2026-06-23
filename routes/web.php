@@ -2,24 +2,24 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdministratorSessionCheck;
 use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
-use App\Http\Controllers\Administrator\DashboardController;
-use App\Http\Controllers\Administrator\MasterManagementController;
-use App\Http\Controllers\Administrator\RelationManagementController;
-use App\Http\Controllers\Administrator\AccountController;
-
-use App\Http\Controllers\Administrator\Master\FacilityController;
-use App\Http\Controllers\Administrator\Master\BuildingController;
-use App\Http\Controllers\Administrator\Master\EquipmentController;
-use App\Http\Controllers\Administrator\Master\PurposeController;
-use App\Http\Controllers\Administrator\Master\SlotController;
-use App\Http\Controllers\Administrator\Relation\FacilityPurposeEquipmentController;
-use App\Http\Controllers\Administrator\Relation\FacilityPurposeController;
-use App\Http\Controllers\Administrator\Relation\FacilitySlotController;
-
 
 use App\Http\Controllers\User\AuthController as UserAuthController;
 
 // routes/web.php
-Route::get('/{any}', function () {
-    return view('app'); // Reactをマウントするための空のBladeファイル
+// 1. 認証不要なルート（ログインなど）
+Route::prefix('api/administrator')->group(function () {
+    // Route::post('/login', [AdminAuthController::class, 'login']);
+});
+
+// 3. SPA用ルーティング（上記にマッチしないものは全て React へ）
+// routes/web.php
+
+// 管理者用
+Route::get('/administrator/{any?}', function () {
+    return view('app'); // 管理者用レイアウト
+})->where('any', '.*');
+
+// 一般ユーザー用
+Route::get('/user/{any?}', function () {
+    return view('app'); // ユーザー用レイアウト（もし必要なら別のviewでもOK）
 })->where('any', '.*');

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '@/api';
 
 export default function Login() {
     const [password, setPassword] = useState('');
@@ -15,11 +16,11 @@ export default function Login() {
 
         try {
             // CSRFトークンを取得してからログイン実行
-            await axios.get('/sanctum/csrf-cookie');
-            await axios.post('/administrator/login', { password });
+            // await api.get('/sanctum/csrf-cookie');
+            // await api.post('/administrator/login');
 
             // 成功したらダッシュボードへ
-            navigate('/administrator/master');
+            navigate('/administrator/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'ログインに失敗しました');
         } finally {

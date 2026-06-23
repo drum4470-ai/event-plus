@@ -18,7 +18,10 @@ public function index()
     // 新規作成
     public function store(Request $request)
     {
-        $validated = $request->validate([...]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'required|string',
+        ]);
         $item = Building::create($validated);
         return response()->json($item, 201);
     }
@@ -33,9 +36,7 @@ public function index()
         $item = Building::findOrFail($id);
         $item->update($validated);
 
-        return new BuildingResource($item);
-            ->response()
-            ->setStatusCode(202);
+        return (new BuildingResource($item))->response()->setStatusCode(202);
     }
     // 削除処理
     public function destroy($id)

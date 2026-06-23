@@ -1,29 +1,49 @@
 import './bootstrap';
-import '../css/app.css';
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// 各ページコンポーネントをインポート（パスは実際の構成に合わせてください）
+// ページコンポーネントをインポート
+
 import Login from './Pages/Administrator/Login';
+import Dashboard from './Pages/Administrator/Dashboard';
 import MasterManagement from './Pages/Administrator/MasterManagement';
+import FacilityRegistration from './Pages/Administrator/Masters/FacilityRegistration';
+import BuildingRegistration from './Pages/Administrator/Masters/BuildingRegistration';
+import PurposeRegistration from './Pages/Administrator/Masters/PurposeRegistration';
+import EquipmentRegistration from './Pages/Administrator/Masters/EquipmentRegistration';
+import SlotRegistration from './Pages/Administrator/Masters/SlotRegistration';
+// 他のページも同様にインポート
 
-const rootElement = document.getElementById('app');
+const App = () => (
+    <BrowserRouter>
+        <Routes>
 
-if (rootElement) {
-    createRoot(rootElement).render(
-        <React.StrictMode>
-            <BrowserRouter>
-                <Routes>
-                    {/* React Router によるルーティング設定 */}
-                    <Route path="/administrator/login" element={<Login />} />
-                    <Route path="/administrator/master" element={<MasterManagement />} />
-                    
-                    {/* デフォルトのリダイレクトなど */}
-                    <Route path="/" element={<Navigate to="/administrator/login" replace />} />
-                </Routes>
-            </BrowserRouter>
-        </React.StrictMode>
-    );
+            {/* ルートURLへのアクセスをダッシュボードへリダイレクト */}
+            <Route path="/" element={<Navigate to="/administrator/dashboard" />} />
+            
+            {/* 画面一覧 */}
+            <Route path="/administrator/login" element={<Login />} />
+            <Route path="/administrator/dashboard" element={<Dashboard />} />
+            <Route path="/administrator/master" element={<MasterManagement />}>
+                {/* /administrator/master/facility-registration を子として定義 */}
+                <Route path="facility-registration" element={<FacilityRegistration />} />
+                <Route path="building-registration" element={<BuildingRegistration />} />
+                <Route path="equipment-registration" element={<EquipmentRegistration />} />
+                <Route path="purpose-registration" element={<PurposeRegistration />} />
+                <Route path="slot-registration" element={<SlotRegistration />} />
+            </Route>
+            {/* <Route path="/administrator/relation" element={<MasterManagement />}>
+                <Route path="facilityPurpose-equipment-relation" element={<FacilityPurposeEquipmentRelation />} />
+                <Route path="facility-purpose-relation" element={<FacilityPurposeRelation />} />
+                <Route path="facility-slot-relation" element={<FacilitySlotRelation />} />
+            </Route> */}
+            
+        </Routes>
+    </BrowserRouter>
+);
+
+const container = document.getElementById('app');
+if (container) {
+    createRoot(container).render(<App />);
 }

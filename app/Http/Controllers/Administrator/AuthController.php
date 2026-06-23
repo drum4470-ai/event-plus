@@ -12,9 +12,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'password' => ['required'],
-        ]);
+        $credentials = $request->validate(['']);
 
         // Guard名は config/auth.php の guards 設定に合わせてください
         if (Auth::guard('admin')->attempt($credentials)) {

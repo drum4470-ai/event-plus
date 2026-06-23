@@ -16,7 +16,7 @@ class RelationManagementController extends Controller
         $facilitySlots = FacilitySlot::all()->sortBy('name')->values();
 
 
-        return Inertia::render('Administrator/RelationManagement', [
+       return response()->json([
             'facilityPurposes' => $facilityPurpses,
             'facilityPurpseEquipment' => $facilityPurpseEquipment,
             'facilitySlots' => $facilitySlots,
