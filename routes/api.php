@@ -4,6 +4,7 @@ use App\Http\Controllers\Administrator\MasterManagementController;
 use App\Http\Controllers\Administrator\RelationManagementController;
 use App\Http\Controllers\Administrator\AccountController;
 use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
+use App\Http\Middleware\AdministratorSessionCheck;
 
 use App\Http\Controllers\Administrator\Master\FacilityController;
 use App\Http\Controllers\Administrator\Master\BuildingController;
@@ -17,6 +18,8 @@ use App\Http\Controllers\Administrator\Relation\FacilitySlotController;
 
 // 2. 認証が必要な API ルート
 Route::prefix('administrator')->middleware([AdministratorSessionCheck::class])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/master', [MasterManagementController::class, 'index']);
     Route::post('/logout', [AdminAuthController::class, 'logout']);
     
     // 各マスター管理の API
