@@ -11,7 +11,8 @@ class SlotController extends Controller
 {
      public function index()
     {
-        return response()->json(Slot::all(), 200);
+        // return SlotResource::collection(Slot::all())->response()->setStatusCode(200);
+        return response()->json(['status' => 'debug', 'message' => 'Controller is working']);
     }
 
     // 新規作成
@@ -21,7 +22,7 @@ class SlotController extends Controller
             'name' => 'required|string|max:255',
         ]);
         $item = Slot::create($validated);
-        return response()->json($item, 201);
+        return (new SlotResource($item))->response()->setStatusCode(201);
     }
 
     public function update(Request $request, $id)
@@ -40,6 +41,6 @@ class SlotController extends Controller
     {
         $item = Slot::findOrFail($id);
         $item->delete();
-        return response()->json(['message' => '削除しました'], 200);
+        return response()->json(null, 204);
     }
 }

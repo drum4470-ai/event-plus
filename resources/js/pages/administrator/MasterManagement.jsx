@@ -4,6 +4,8 @@ import FacilityRegistration from './Masters/FacilityRegistration';
 import PurposeRegistration from './Masters/PurposeRegistration';
 import EquipmentRegistration from './Masters/EquipmentRegistration';
 import SlotRegistration from './Masters/SlotRegistration';
+import api from '@/api';
+import { Outlet } from 'react-router-dom';
 
 export default function MasterManagement({ type, submitUrls = {}, ...props }) {
     const [activeTab, setActiveTab] = useState('facility'); // 'facility' か 'building'

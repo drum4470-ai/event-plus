@@ -12,7 +12,7 @@ class BuildingController extends Controller
     // 一覧取得: Resourceを返すとAPIとしての品質が上がります
 public function index()
     {
-        return response()->json(Building::all(), 200);
+        return BuildingResource::collection(Building::all())->response()->setStatusCode(200);
     }
 
     // 新規作成
@@ -23,7 +23,7 @@ public function index()
             'address' => 'required|string',
         ]);
         $item = Building::create($validated);
-        return response()->json($item, 201);
+        return (new BuildingResource($item))->response()->setStatusCode(201);
     }
 
     public function update(Request $request, $id)
@@ -43,10 +43,6 @@ public function index()
     {
         $item = Building::findOrFail($id);
         $item->delete();
-        return response()->json(['message' => '削除しました'], 200);
+        return response()->json(null, 204);
     }
-
-    // 更新: 変更後の最新データを返す
-
-   
 }

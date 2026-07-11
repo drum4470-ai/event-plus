@@ -46,6 +46,6 @@ class FacilityController extends Controller
         $item->delete();
 
         // 削除時はデータがないので、JSONメッセージを返します
-        return response()->json(['message' => '削除しました'], 203);
+        return response()->json(null, 204);
     }
 }

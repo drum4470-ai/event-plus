@@ -1,7 +1,8 @@
 import './bootstrap';
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate  } from 'react-router-dom';
+import api from '@/api';
 
 // ページコンポーネントをインポート
 
@@ -44,6 +45,15 @@ const App = () => (
 );
 
 const container = document.getElementById('app');
-if (container) {
-    createRoot(container).render(<App />);
+if (!window.root) {
+    window.root = ReactDOM.createRoot(container);
 }
+
+// 2. 既存のルートを使ってレンダリングする
+console.log("レンダリング開始直前");
+window.root.render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
+);
+console.log("レンダリング実行完了");

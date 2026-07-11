@@ -1,109 +1,152 @@
-import React, { useState, useMemo } from 'react';
-import api from '@/api'; // axiosインスタンス
+import React, { useState, useEffect } from 'react';
+import api from '@/api'; // インポートした axios インスタンス
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
-export default function FacilityRegistration({ existingNames = [], buildings = [], submitUrls = {} }) {
-    const [selectedBuildingId, setSelectedBuildingId] = useState('');
+export default function FacilityRegistration({ existingNames = [] }) {
+    const [facilities, setFacilities] = useState(existingNames);
+    const [formData, setFormData] = useState({ name: ''});
+    const [editData, setEditData] = useState({ name: ''});
+    
+    // モーダル用State管理
     const [confirmModal, setConfirmModal] = useState(false);
     const [successModal, setSuccessModal] = useState(false);
-    const [editingItem, setEditingItem] = useState(null);
     const [editModal, setEditModal] = useState(false);
     const [editSuccessModal, setEditSuccessModal] = useState(false);
     const [deleteFirstConfirm, setDeleteFirstConfirm] = useState(false);
     const [deleteSecondConfirm, setDeleteSecondConfirm] = useState(false);
     const [deleteSuccessModal, setDeleteSuccessModal] = useState(false);
     
+    const [editingItem, setEditingItem] = useState(null);
     const [duplicateError, setDuplicateError] = useState('');
     const [similarityWarning, setSimilarityWarning] = useState('');
-    const [registeredName, setRegisteredName] = useState('');
     const [processing, setProcessing] = useState(false);
 
-    // useState に置き換え
-    const [data, setData] = useState({ name: '', building_id: '' });
-    const [editData, setEditData] = useState({ name: '', building_id: '' });
-
-    const filteredFacilities = useMemo(() => {
-        if (!selectedBuildingId) return existingNames;
-        return existingNames.filter(f => String(f.building_id) === String(selectedBuildingId));
-    }, [existingNames, selectedBuildingId]);
+    useEffect(() => {
+        const fetchFacilities = async () => {
+            try {
+                // api インスタンスを使用
+                const { data } = await api.get('/administrator/fa');
+                console.log("APIレスポンス:", data);
+                setFacilities(data.data || []);
+            } catch (error) {
+                console.error("データ取得エラー:", error);
+            }
+        };
+        fetchFacilities();
+    }, []);
 
     const handleNameChange = (value) => {
-        setData(prev => ({ ...prev, name: value }));
+        setFormData({ ...formData, name: value });
         setDuplicateError('');
         setSimilarityWarning('');
-
         if (!value.trim()) return;
-
-        const isDuplicate = filteredFacilities.some(f => f.name === value);
-        if (isDuplicate) {
-            setDuplicateError('同じ名前の施設が既に登録されています');
-            return;
-        }
-
-        const similarItems = filteredFacilities.filter(f => {
-            const similarity = calculateSimilarity(f.name, value);
-            return similarity > 0.7 && f.name !== value;
-        });
-
-        if (similarItems.length > 0) {
-            setSimilarityWarning(`似た名前が存在しています: ${similarItems.map(f => f.name).join(', ')}`);
-        }
+        const isDuplicate = fa.some(f => f.name === value);
+        if (isDuplicate) setDuplicateError('同じ名前の建物が既に登録されています');
+        const similar = fa.filter(f => calculateSimilarity(f.name, value) > 0.7 && f.name !== value);
+        if (similar.length > 0) setSimilarityWarning(`似た名前が存在しています: ${similar.map(f => f.name).join(', ')}`);
     };
 
-    // 登録処理
+    const handleRegisterClick = () => {
+        if (!formData.name) return alert('建物名を入力してください');
+        if (duplicateError) return alert('入力内容に不備があります');
+        setConfirmModal(true);
+    };
+
     const handleConfirmRegister = async () => {
-        if (!data.name || !data.building_id) {
-            alert('施設名と建物を選択してください');
-            return;
-        }
         setProcessing(true);
         try {
-            await api.post(submitUrls.facility_store || '/administrator/facilities', data);
+            const response = await api.post('/administrator/fa', formData);
+            setFacilities([...facilities, response.data]);
             setConfirmModal(false);
-            setRegisteredName(data.name);
             setSuccessModal(true);
-            setData({ name: '', building_id: selectedBuildingId });
+            setFormData({ name: '', address: '' });
         } catch (err) {
-            alert('登録に失敗しました');
+            console.error(err);
         } finally {
             setProcessing(false);
         }
     };
 
-    // 編集更新処理
     const handleConfirmEdit = async () => {
         setProcessing(true);
         try {
-            const url = `${submitUrls.facility_update || '/administrator/facilities'}/${editingItem.facility_id}`;
-            await api.put(url, editData);
+            const response = await api.put(`/administrator/facilities/${editingItem.facility_id}`, editData);
+            setFacilities(facilities.map(b => b.facility_id === editingItem.facility_id ? response.data : b));
             setEditModal(false);
             setEditSuccessModal(true);
         } catch (err) {
-            alert('更新に失敗しました');
+            console.error(err);
         } finally {
             setProcessing(false);
         }
     };
 
-    // 削除処理
     const handleSecondDeleteConfirm = async () => {
+        if (!editingItem || !editingItem.facility_id) return;
         setProcessing(true);
         try {
-            const url = `${submitUrls.facility_update || '/administrator/facilities'}/${editingItem.facility_id}`;
-            await api.delete(url);
+            await api.delete(`/administrator/facilities/${editingItem.facility_id}`);
+            setFacilities(facilities.filter(b => b.facility_id !== editingItem.facility_id));
             setDeleteSecondConfirm(false);
             setDeleteSuccessModal(true);
         } catch (err) {
-            alert('削除に失敗しました');
+            console.error(err);
         } finally {
             setProcessing(false);
         }
     };
 
-    // JSX内での各イベントハンドラ修正例
-    // 入力フォームの建物選択:
-    // onChange={(e) => { const id = e.target.value; setSelectedBuildingId(id); setData(prev => ({...prev, building_id: id})); }}
-    // 編集フォームの建物選択:
-    // onChange={(e) => setEditData(prev => ({...prev, building_id: e.target.value}))}
+    return (
+        <div className="w-full">
+            <h2 className="text-xl font-bold mb-4">建物マスタ</h2>
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+                <input 
+                    value={formData.name || ''} 
+                    onChange={(e) => handleNameChange(e.target.value)} 
+                    className="w-full p-3 border rounded-lg" 
+                    placeholder="建物名" 
+                />
+                <input 
+                    value={formData.address || ''} 
+                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} 
+                    className="w-full p-3 border rounded-lg" 
+                    placeholder="住所" 
+                />
+                <button 
+                    onClick={handleRegisterClick} 
+                    disabled={processing} 
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg"
+                >
+                    登録する
+                </button>
+            </div>
+
+            <ul className="mt-6 bg-white rounded-lg border divide-y">
+                {facilities?.map((item) => (
+                    <li 
+                        key={item.facility_id} 
+                        onClick={() => { 
+                            setEditingItem(item); 
+                            setEditData({name: item.name || '', address: item.address || ''}); 
+                            setEditModal(true); 
+                        }} 
+                        className="p-3 cursor-pointer hover:bg-blue-50"
+                    >
+                        <div className="font-bold">{item.name}</div>
+                    </li>
+                ))}
+            </ul>
+
+            {/* モーダル群：既存のまま（Inertia非依存なので動作可能） */}
+            <CommonModal isOpen={confirmModal} onClose={() => setConfirmModal(false)} onConfirm={handleConfirmRegister} title="確認" confirmText="OK">登録しますか？</CommonModal>
+            <CommonModal isOpen={successModal} onClose={() => setSuccessModal(false)} onConfirm={() => setSuccessModal(false)} showCancel={false} title="完了" confirmText="OK">登録しました。</CommonModal>
+            <CommonModal isOpen={editModal} onClose={() => setEditModal(false)} onConfirm={handleConfirmEdit} onDelete={() => { setEditModal(false); setDeleteFirstConfirm(true); }} title="編集" confirmText="保存">
+                <input value={editData.name} onChange={(e) => setEditData({...editData, name: e.target.value})} className="w-full p-2 border" />
+            </CommonModal>
+            <CommonModal isOpen={deleteFirstConfirm} onClose={() => setDeleteFirstConfirm(false)} onConfirm={() => {setDeleteFirstConfirm(false); setDeleteSecondConfirm(true);}} title="削除確認" confirmText="次へ" isDanger>本当に削除しますか？</CommonModal>
+            <CommonModal isOpen={deleteSecondConfirm} onClose={() => setDeleteSecondConfirm(false)} onConfirm={handleSecondDeleteConfirm} title="最終確認" confirmText="削除を実行" isDanger>元に戻せません。</CommonModal>
+            <CommonModal isOpen={deleteSuccessModal} onClose={() => {setDeleteSuccessModal(false); setEditingItem(null);}} onConfirm={() => {setDeleteSuccessModal(false); setEditingItem(null);}} showCancel={false} title="削除完了" confirmText="OK">削除しました。</CommonModal>
+        </div>
+    );
 }

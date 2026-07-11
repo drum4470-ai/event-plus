@@ -11,7 +11,7 @@ class EquipmentController extends Controller
 {
     public function index()
     {
-        return response()->json(Equipment::all(), 200);
+        return EquipmentResource::collection(Equipment::all())->response()->setStatusCode(200);
     }
 
     // 新規作成
@@ -21,7 +21,7 @@ class EquipmentController extends Controller
             'name' => 'required|string|max:255',
         ]);
         $item = Equipment::create($validated);
-        return response()->json($item, 201);
+        return (new EquipmentResource($item))->response()->setStatusCode(201);
     }
 
     public function update(Request $request, $id)
@@ -40,6 +40,6 @@ class EquipmentController extends Controller
     {
         $item = Equipment::findOrFail($id);
         $item->delete();
-        return response()->json(['message' => '削除しました'], 200);
-    }
+        return response()->json(null, 204);
+    }   
 }

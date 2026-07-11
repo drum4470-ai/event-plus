@@ -12,7 +12,7 @@ class PurposeController extends Controller
     // 一覧取得
      public function index()
     {
-        return response()->json(Purpose::all(), 200);
+        return PurposeResource::collection(Purpose::all())->response()->setStatusCode(200);
     }
 
     // 新規作成
@@ -22,7 +22,7 @@ class PurposeController extends Controller
             'name' => 'required|string|max:255',
         ]);
         $item = Purpose::create($validated);
-        return response()->json($item, 201);
+        return (new PurposeResource($item))->response()->setStatusCode(201);
     }
 
     public function update(Request $request, $id)
@@ -41,6 +41,6 @@ class PurposeController extends Controller
     {
         $item = Purpose::findOrFail($id);
         $item->delete();
-        return response()->json(['message' => '削除しました'], 200);
+        return response()->json(null, 204);
     }
 }

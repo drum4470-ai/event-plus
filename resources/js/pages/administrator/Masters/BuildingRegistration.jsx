@@ -27,7 +27,8 @@ export default function BuildingRegistration({ existingNames = [] }) {
             try {
                 // api インスタンスを使用
                 const { data } = await api.get('/administrator/buildings');
-                setBuildings(data); // Resource がなければ data.data を使用
+                console.log("APIレスポンス:", data);
+                setBuildings(data.data || []);
             } catch (error) {
                 console.error("データ取得エラー:", error);
             }
@@ -122,7 +123,7 @@ export default function BuildingRegistration({ existingNames = [] }) {
             </div>
 
             <ul className="mt-6 bg-white rounded-lg border divide-y">
-                {buildings.map((item) => (
+                {buildings?.map((item) => (
                     <li 
                         key={item.building_id} 
                         onClick={() => { 
