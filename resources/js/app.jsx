@@ -20,21 +20,20 @@ const App = () => (
     <BrowserRouter>
         <Routes>
 
-            {/* ルートURLへのアクセスをダッシュボードへリダイレクト */}
-            <Route path="/" element={<Navigate to="/administrator/dashboard" />} />
+            <Route path="/" element={<Navigate to="/administrator/login" />} />
             
             {/* 画面一覧 */}
             <Route path="/administrator/login" element={<Login />} />
             <Route path="/administrator/dashboard" element={<Dashboard />} />
             <Route path="/administrator/master" element={<MasterManagement />}>
-                {/* /administrator/master/facility-registration を子として定義 */}
+                {/* /master/facility-registration を子として定義 */}
                 <Route path="facility-registration" element={<FacilityRegistration />} />
                 <Route path="building-registration" element={<BuildingRegistration />} />
                 <Route path="equipment-registration" element={<EquipmentRegistration />} />
                 <Route path="purpose-registration" element={<PurposeRegistration />} />
                 <Route path="slot-registration" element={<SlotRegistration />} />
             </Route>
-            {/* <Route path="/administrator/relation" element={<MasterManagement />}>
+            {/* <Route path="/relation" element={<MasterManagement />}>
                 <Route path="facilityPurpose-equipment-relation" element={<FacilityPurposeEquipmentRelation />} />
                 <Route path="facility-purpose-relation" element={<FacilityPurposeRelation />} />
                 <Route path="facility-slot-relation" element={<FacilitySlotRelation />} />

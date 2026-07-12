@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+    $middleware->api(prepend: [
+        \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+    ]);
     $middleware->alias([
         // 'web.phpで使う名前' => クラス名::class
         'admin.check' => \App\Http\Middleware\AdministratorSessionCheck::class,

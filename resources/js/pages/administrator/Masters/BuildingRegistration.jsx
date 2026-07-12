@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '@/api'; // インポートした axios インスタンス
+import api from '@/api';
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
@@ -22,19 +22,6 @@ export default function BuildingRegistration({ existingNames = [] }) {
     const [similarityWarning, setSimilarityWarning] = useState('');
     const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        const fetchBuildings = async () => {
-            try {
-                // api インスタンスを使用
-                const { data } = await api.get('/administrator/buildings');
-                console.log("APIレスポンス:", data);
-                setBuildings(data.data || []);
-            } catch (error) {
-                console.error("データ取得エラー:", error);
-            }
-        };
-        fetchBuildings();
-    }, []);
 
     const handleNameChange = (value) => {
         setFormData({ ...formData, name: value });

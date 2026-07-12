@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '@/api'; // インポートした axios インスタンス
+import api from '@/api';
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
@@ -22,33 +22,21 @@ export default function FacilityRegistration({ existingNames = [] }) {
     const [similarityWarning, setSimilarityWarning] = useState('');
     const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        const fetchFacilities = async () => {
-            try {
-                // api インスタンスを使用
-                const { data } = await api.get('/administrator/fa');
-                console.log("APIレスポンス:", data);
-                setFacilities(data.data || []);
-            } catch (error) {
-                console.error("データ取得エラー:", error);
-            }
-        };
-        fetchFacilities();
-    }, []);
+
 
     const handleNameChange = (value) => {
         setFormData({ ...formData, name: value });
         setDuplicateError('');
         setSimilarityWarning('');
         if (!value.trim()) return;
-        const isDuplicate = fa.some(f => f.name === value);
-        if (isDuplicate) setDuplicateError('同じ名前の建物が既に登録されています');
-        const similar = fa.filter(f => calculateSimilarity(f.name, value) > 0.7 && f.name !== value);
+        const isDuplicate = facilities.some(f => f.name === value);
+        if (isDuplicate) setDuplicateError('同じ名前の施設が既に登録されています');
+        const similar = facilities.filter(f => calculateSimilarity(f.name, value) > 0.7 && f.name !== value);
         if (similar.length > 0) setSimilarityWarning(`似た名前が存在しています: ${similar.map(f => f.name).join(', ')}`);
     };
 
     const handleRegisterClick = () => {
-        if (!formData.name) return alert('建物名を入力してください');
+        if (!formData.name) return alert('施設名を入力してください');
         if (duplicateError) return alert('入力内容に不備があります');
         setConfirmModal(true);
     };
@@ -56,7 +44,7 @@ export default function FacilityRegistration({ existingNames = [] }) {
     const handleConfirmRegister = async () => {
         setProcessing(true);
         try {
-            const response = await api.post('/administrator/fa', formData);
+            const response = await api.post('/administrator/facilities', formData);
             setFacilities([...facilities, response.data]);
             setConfirmModal(false);
             setSuccessModal(true);

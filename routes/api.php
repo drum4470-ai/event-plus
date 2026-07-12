@@ -16,12 +16,16 @@ use App\Http\Controllers\Administrator\Relation\FacilityPurposeController;
 use App\Http\Controllers\Administrator\Relation\FacilitySlotController;
 
 
+Route::middleware(['web'])->prefix('administrator')->group(function () {
+    Route::post('/login', [AdminAuthController::class, 'login']);
+});
+
 // 2. 認証が必要な API ルート
-Route::prefix('administrator')->middleware([AdministratorSessionCheck::class])->group(function () {
+Route::prefix('administrator')->middleware(['web', AdministratorSessionCheck::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/master', [MasterManagementController::class, 'index']);
     Route::post('/logout', [AdminAuthController::class, 'logout']);
-    
+
     // 各マスター管理の API
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('buildings', BuildingController::class);

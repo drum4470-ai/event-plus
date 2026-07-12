@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // axiosをインポート
 import api from '@/api';
 
 export default function Login() {
@@ -15,11 +15,16 @@ export default function Login() {
         setError('');
 
         try {
-            // CSRFトークンを取得してからログイン実行
-            // await api.get('/sanctum/csrf-cookie');
-            // await api.post('/administrator/login');
+            // 1. CSRFトークンの取得 (axiosを直接使うのが確実)
+            // baseURLが設定されていないaxiosを使うことで、正しいURLへリクエストします
+            await api.get('http://event-plus.test/sanctum/csrf-cookie', {
+                withCredentials: true,
+            });
 
-            // 成功したらダッシュボードへ
+            // 2. ログインAPIの実行 (ここでは api インスタンスを使う)
+            await api.post('/administrator/login');
+
+            // 3. 成功したら遷移
             navigate('/administrator/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'ログインに失敗しました');
@@ -27,6 +32,9 @@ export default function Login() {
             setProcessing(false);
         }
     };
+
+    // ...以下レンダリング部分は変更なし
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '@/api'; // インポートした axios インスタンス
+import api from '@/api';
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
@@ -22,19 +22,7 @@ export default function SlotRegistration({ existingNames = [] }) {
     const [similarityWarning, setSimilarityWarning] = useState('');
     const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        const fetchSlots = async () => {
-            try {
-                // api インスタンスを使用
-                const { data } = await api.get('/slots');
-                console.log("APIレスポンス:", data);
-                setSlots(data.data || []);
-            } catch (error) {
-                console.error("データ取得エラー:", error);
-            }
-        };
-        fetchSlots();
-    }, []);
+
 //     useEffect(() => {
 //     const testApi = async () => {
 //         try {
@@ -68,7 +56,7 @@ export default function SlotRegistration({ existingNames = [] }) {
     const handleConfirmRegister = async () => {
         setProcessing(true);
         try {
-            const response = await api.post('/slots', formData);
+            const response = await api.post('/administrator/slots', formData);
             setSlots([...slots, response.data]);
             setConfirmModal(false);
             setSuccessModal(true);
@@ -83,7 +71,7 @@ export default function SlotRegistration({ existingNames = [] }) {
     const handleConfirmEdit = async () => {
         setProcessing(true);
         try {
-            const response = await api.put(`/slots/${editingItem.slot_id}`, editData);
+            const response = await api.put(`/administrator/slots/${editingItem.slot_id}`, editData);
             setSlots(slots.map(b => b.slot_id === editingItem.slot_id ? response.data : b));
             setEditModal(false);
             setEditSuccessModal(true);
@@ -98,7 +86,7 @@ export default function SlotRegistration({ existingNames = [] }) {
         if (!editingItem || !editingItem.slot_id) return;
         setProcessing(true);
         try {
-            await api.delete(`/slots/${editingItem.slot_id}`);
+            await api.delete(`/administrator/slots/${editingItem.slot_id}`);
             setSlots(slots.filter(b => b.slot_id !== editingItem.slot_id));
             setDeleteSecondConfirm(false);
             setDeleteSuccessModal(true);

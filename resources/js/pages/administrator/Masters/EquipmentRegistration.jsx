@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import api from '@/api'; // インポートした axios インスタンス
+import api from '@/api';
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
-export default function FacilityRegistration({ existingNames = [] }) {
-    const [facilities, setFacilities    ] = useState(existingNames);
-    const [formData, setFormData] = useState({ name: ''});
-    const [editData, setEditData] = useState({ name: ''});
+export default function EquipmentRegistration({ existingNames = [] }) {
+    const [equipments, setEquipments] = useState(existingNames);
+    const [formData, setFormData] = useState({ name: '', address: ''});
+    const [editData, setEditData] = useState({ name: '', address: ''});
     
     // モーダル用State管理
     const [confirmModal, setConfirmModal] = useState(false);
@@ -22,19 +22,6 @@ export default function FacilityRegistration({ existingNames = [] }) {
     const [similarityWarning, setSimilarityWarning] = useState('');
     const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        const fetchEquipments = async () => {
-            try {
-                // api インスタンスを使用
-                const { data } = await api.get('/administrator/equipments');
-                console.log("APIレスポンス:", data);
-                setEquipments(data.data || []);
-            } catch (error) {
-                console.error("データ取得エラー:", error);
-            }
-        };
-        fetchEquipments();
-    }, []);
 
     const handleNameChange = (value) => {
         setFormData({ ...formData, name: value });
@@ -56,7 +43,7 @@ export default function FacilityRegistration({ existingNames = [] }) {
     const handleConfirmRegister = async () => {
         setProcessing(true);
         try {
-            const response = await api.post('/administrator/equipments', formData);
+            const response = await api.post('/administrator/equipment', formData);
             setEquipments([...equipments, response.data]);
             setConfirmModal(false);
             setSuccessModal(true);
@@ -71,7 +58,7 @@ export default function FacilityRegistration({ existingNames = [] }) {
     const handleConfirmEdit = async () => {
         setProcessing(true);
         try {
-            const response = await api.put(`/administrator/equipments/${editingItem.equipment_id}`, editData);
+            const response = await api.put(`/administrator/equipment/${editingItem.equipment_id}`, editData);
             setEquipments(equipments.map(b => b.equipment_id === editingItem.equipment_id ? response.data : b));
             setEditModal(false);
             setEditSuccessModal(true);
@@ -86,7 +73,7 @@ export default function FacilityRegistration({ existingNames = [] }) {
         if (!editingItem || !editingItem.equipment_id) return;
         setProcessing(true);
         try {
-            await api.delete(`/administrator/equipments/${editingItem.equipment_id}`);
+            await api.delete(`/administrator/equipment/${editingItem.equipment_id}`);
             setEquipments(equipments.filter(b => b.equipment_id !== editingItem.equipment_id));
             setDeleteSecondConfirm(false);
             setDeleteSuccessModal(true);

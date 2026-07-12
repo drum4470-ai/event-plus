@@ -9,15 +9,16 @@ class AdministratorSessionCheck
 {
     public function handle(Request $request, Closure $next)
     {
-        // ログインルートは通す
-        if ($request->is('administrator/login*')) {
+        // 1. ログインルートは通す
+        if ($request->is(['api/administrator/login*', 'administrator/login*'])) {
             return $next($request);
         }
 
-        // API通信の場合：JSONで401エラーを返す
+        // 2. 指定したガード（admin）でログインチェックを行う
+        // ※ 'admin' というガード名は config/auth.php の設定と一致させる必要があります
         if (!Auth::guard('admin')->check()) {
             return response()->json([
-                'message' => 'ログインセッションが切れています。再度ログインしてください。'
+                'message' => '認証されていません'
             ], 401);
         }
 
