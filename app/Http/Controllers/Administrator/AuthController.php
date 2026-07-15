@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // ★追加：Authファサード
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -12,14 +14,32 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $user = \App\Models\User::first() ?? new \App\Models\User([
-            'email' => 'admin@event-plus.test',
-        ]);
+        $request->validate([
+        'password' => ['required'],
+    ]);
 
-        Auth::guard('admin')->login($user);
-        $request->session()->regenerate();
+    // 認証を試みる前に、ユーザーが存在するかすら確認する
+    $user = User::first();
 
-        return response()->json(['message' => 'ログインしました'], 200);
+    if (!$user) {
+        return response()->json([
+            'message' => '管理者が存在しません'
+        ], 404);
+    }
+
+    // 認証失敗
+    if (!Hash::check($request->password, $user->password)) {
+        return response()->json([
+            'message' => 'パスワードが違います'
+        ], 401);
+    }
+
+    Auth::login($user);
+    $request->session()->regenerate();
+
+    return response()->json([
+        'message' => 'ログイン成功'
+    ]);
     }
 
     public function logout(Request $request)

@@ -12,7 +12,7 @@ class Slot extends Model
     use HasFactory;
 
     protected $table = 'slots';
-    protected $primaryKey = 'slot_id';
+    // protected $primaryKey = 'slot_id';
     
     protected $fillable = [
         'name', // 例：午前、午後、夜間、コマ1、など

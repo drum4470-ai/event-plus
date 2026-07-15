@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon; // 日付生成用
+use Illuminate\Support\Facades\Hash;
 
 class MasterDataSeeder extends Seeder
 {
@@ -96,6 +97,19 @@ class MasterDataSeeder extends Seeder
             ['facility_id' => 10, 'slot_id' => 1, 'created_at' => $now, 'updated_at' => $now],
             ['facility_id' => 10, 'slot_id' => 2, 'created_at' => $now, 'updated_at' => $now],
             ['facility_id' => 10, 'slot_id' => 3, 'created_at' => $now, 'updated_at' => $now],
+        ]);
+        DB::table('users')->insert([ 
+            [
+            'name' => 'Administrator',
+            'email' => 'admin@event-plus.test',
+            'password' => Hash::make('password'), // 本番環境では別の方法で
+            'telephone' => '03-1234-5678',
+            'address' => '東京都千代田区',
+            'company' => 'Event Plus',
+            'role' => 1,
+            'created_at' => $now,
+            'updated_at' => $now,
+            ],
         ]);
 
         DB::statement('PRAGMA foreign_keys = ON;');

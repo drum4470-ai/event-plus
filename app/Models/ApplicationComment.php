@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ApplicationComment extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'comment_id';
+    // protected $primaryKey = 'comment_id';
     protected $fillable = [
         'application_id',
         'user_id',

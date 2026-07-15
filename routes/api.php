@@ -4,7 +4,7 @@ use App\Http\Controllers\Administrator\MasterManagementController;
 use App\Http\Controllers\Administrator\RelationManagementController;
 use App\Http\Controllers\Administrator\AccountController;
 use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
-use App\Http\Middleware\AdministratorSessionCheck;
+
 
 use App\Http\Controllers\Administrator\Master\FacilityController;
 use App\Http\Controllers\Administrator\Master\BuildingController;
@@ -21,7 +21,7 @@ Route::middleware(['web'])->prefix('administrator')->group(function () {
 });
 
 // 2. 認証が必要な API ルート
-Route::prefix('administrator')->middleware(['web', AdministratorSessionCheck::class])->group(function () {
+Route::prefix('administrator')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/master', [MasterManagementController::class, 'index']);
     Route::post('/logout', [AdminAuthController::class, 'logout']);

@@ -12,7 +12,7 @@ class Application extends Model
 {
     use HasFactory;
     protected $table = 'applications';
-    protected $primaryKey = 'application_id';
+    // protected $primaryKey = 'application_id';
     
     public $incrementing = false;
     protected $keyType = 'string';

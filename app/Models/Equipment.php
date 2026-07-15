@@ -12,7 +12,7 @@ class Equipment extends Model
 
 
     protected $table = 'equipment';
-    protected $primaryKey = 'equipment_id';
+    // protected $primaryKey = 'equipment_id';
     
     protected $fillable = [
         'name',

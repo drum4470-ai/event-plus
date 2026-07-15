@@ -16,7 +16,7 @@ class AdministratorSessionCheck
 
         // 2. 指定したガード（admin）でログインチェックを行う
         // ※ 'admin' というガード名は config/auth.php の設定と一致させる必要があります
-        if (!Auth::guard('admin')->check()) {
+        if (!Auth::check()) {
             return response()->json([
                 'message' => '認証されていません'
             ], 401);

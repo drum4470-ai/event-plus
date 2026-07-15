@@ -12,7 +12,7 @@ class Purpose extends Model
     use HasFactory;
 
     protected $table = 'purposes';
-    protected $primaryKey = 'purpose_id';
+    // protected $primaryKey = 'purpose_id';
     
     protected $fillable = [
         'name',

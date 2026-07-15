@@ -11,7 +11,7 @@ class Building extends Model
     use HasFactory;
 
     protected $table = 'buildings'; 
-    protected $primaryKey = 'building_id';
+    // protected $primaryKey = 'building_id';
     
     protected $fillable = [
         'name',

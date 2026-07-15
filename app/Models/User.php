@@ -14,7 +14,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable; // HasApiTokens を追加
 
-    protected $primaryKey = 'user_id';
+    // protected $primaryKey = 'user_id';
 
     protected $fillable = [
         'name',
@@ -22,8 +22,8 @@ class User extends Authenticatable
         'password',
         'telephone',
         'address',
-        'company_name',
-        'role_id',
+        'company',
+        'role',
     ];
 
     protected function casts(): array
