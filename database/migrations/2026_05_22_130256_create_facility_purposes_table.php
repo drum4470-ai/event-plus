@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('facility_purposes', function (Blueprint $table) {
-            $table->id()->comment('施設目的ID');
+            $table->id('facility_purpose_id')->comment('施設目的ID');
             // 施設への外部キー
             $table->foreignId('facility_id')->constrained('facilities', 'facility_id')->onDelete('cascade')->comment('施設ID');
             // 目的への外部キー

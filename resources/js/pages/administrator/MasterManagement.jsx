@@ -1,42 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import BuildingRegistration from './Masters/BuildingRegistration';
 import FacilityRegistration from './Masters/FacilityRegistration';
 import PurposeRegistration from './Masters/PurposeRegistration';
 import EquipmentRegistration from './Masters/EquipmentRegistration';
 import SlotRegistration from './Masters/SlotRegistration';
-import api from '@/api';
+import api, { csrfApi } from '@/api';
 
 export default function MasterManagement() {
-    
-    
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [buildings, slots, facilities, purposes, equipments] = await Promise.all([
-                    api.get('/administrator/buildings'),
-                    api.get('/administrator/slots'),
-                    api.get('/administrator/facilities'),
-                    api.get('/administrator/purposes'),
-                    api.get('/administrator/equipment')
-                ]);
-
-                setData({
-                    buildings: buildings.data.data || [],
-                    slots: slots.data.data || [],
-                    facilities: facilities.data.data || [],
-                    purposes: purposes.data.data || [],
-                    equipments: equipments.data.data || []
-                });
-            } catch (error) {
-                console.error("データ取得失敗:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
-
-    const [activeTab, setActiveTab] = useState('facility');
     const [data, setData] = useState({
         buildings: [],
         facilities: [],
@@ -44,7 +14,37 @@ export default function MasterManagement() {
         equipments: [],
         slots: []
     });
+    const [activeTab, setActiveTab] = useState('facility');
     const [loading, setLoading] = useState(true);
+
+    // データの再取得関数を定義
+    // useCallbackで囲むことで、子コンポーネントに渡しても無駄な再レンダリングを防ぐ
+    const refreshData = useCallback(async () => {
+        try {
+            const response = await api.get('/administrator/master');
+
+            setData({
+                buildings: response.data.buildings ?? [],
+                facilities: response.data.facilities ?? [],
+                purposes: response.data.purposes ?? [],
+                equipments: response.data.equipments ?? [],
+                slots: response.data.slots ?? [],
+            });
+
+        } catch (error) {
+            console.error("データ取得失敗:", error);
+        }
+    }, []);
+
+    useEffect(() => {
+        const init = async () => {
+            await csrfApi.get('/sanctum/csrf-cookie');
+            await refreshData();
+            setLoading(false);
+        };
+        init();
+    }, [refreshData]);
+
     const tabs = [
         { id: 'facility', label: '施設マスタ' },
         { id: 'building', label: '建物マスタ' },
@@ -53,20 +53,19 @@ export default function MasterManagement() {
         { id: 'slot', label: '時間帯マスタ' },
     ];
 
-    // コンポーネントを辞書として定義（拡張性を確保）
+    // 各コンポーネントに refreshData を onUpdate として渡す
     const ComponentMap = {
-        facility: <FacilityRegistration existingNames={data.facilities} buildings={data.buildings} />,
-        building: <BuildingRegistration existingNames={data.buildings} />,
-        purpose: <PurposeRegistration existingNames={data.purposes} />,
-        equipment: <EquipmentRegistration existingNames={data.equipments} />,
-        slot: <SlotRegistration existingNames={data.slots} />
+        facility: () => <FacilityRegistration onUpdate={refreshData} existingNames={data.facilities} buildings={data.buildings} />,
+        building: () => <BuildingRegistration onUpdate={refreshData} existingNames={data.buildings} />,
+        purpose: () => <PurposeRegistration onUpdate={refreshData} existingNames={data.purposes} />,
+        equipment: () => <EquipmentRegistration onUpdate={refreshData} existingNames={data.equipments} />,
+        slot: () => <SlotRegistration onUpdate={refreshData} existingNames={data.slots} />
     };
 
     if (loading) return <div className="p-8">読み込み中...</div>;
 
     return (
         <div className="p-8">
-            {/* タブボタン部分 */}
             <div className="flex space-x-4 border-b mb-6">
                 {tabs.map(tab => (
                     <button
@@ -83,9 +82,8 @@ export default function MasterManagement() {
                 ))}
             </div>
 
-            {/* アクティブなコンポーネントを表示 */}
             <div className="mt-4">
-                {ComponentMap[activeTab] || <div>選択してください</div>}
+                {ComponentMap[activeTab] ? ComponentMap[activeTab]() : <div>選択してください</div>}
             </div>
         </div>
     );

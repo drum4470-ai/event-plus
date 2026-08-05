@@ -8,6 +8,7 @@ import api from '@/api';
 
 import Login from './Pages/Administrator/Login';
 import Dashboard from './Pages/Administrator/Dashboard';
+
 import MasterManagement from './Pages/Administrator/MasterManagement';
 import FacilityRegistration from './Pages/Administrator/Masters/FacilityRegistration';
 import BuildingRegistration from './Pages/Administrator/Masters/BuildingRegistration';
@@ -15,6 +16,11 @@ import PurposeRegistration from './Pages/Administrator/Masters/PurposeRegistrati
 import EquipmentRegistration from './Pages/Administrator/Masters/EquipmentRegistration';
 import SlotRegistration from './Pages/Administrator/Masters/SlotRegistration';
 // 他のページも同様にインポート
+import RelationManagement from './Pages/Administrator/RelationManagement';
+import FacilityPurposeEquipmentRelation from './Pages/Administrator/Relations/FacilityPurposeEquipmentRelation';
+import FacilityPurposeRelation from './Pages/Administrator/Relations/FacilityPurposeRelation';
+import FacilitySlotRelation from './Pages/Administrator/Relations/FacilitySlotRelation';
+
 
 const App = () => (
     <BrowserRouter>
@@ -33,11 +39,11 @@ const App = () => (
                 <Route path="purpose-registration" element={<PurposeRegistration />} />
                 <Route path="slot-registration" element={<SlotRegistration />} />
             </Route>
-            {/* <Route path="/relation" element={<MasterManagement />}>
+            <Route path="/administrator/relation" element={<RelationManagement />}>
                 <Route path="facilityPurpose-equipment-relation" element={<FacilityPurposeEquipmentRelation />} />
                 <Route path="facility-purpose-relation" element={<FacilityPurposeRelation />} />
                 <Route path="facility-slot-relation" element={<FacilitySlotRelation />} />
-            </Route> */}
+            </Route>
             
         </Routes>
     </BrowserRouter>

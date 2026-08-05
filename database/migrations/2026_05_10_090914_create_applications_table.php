@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('applications', function (Blueprint $table) {
-            $table->id()->comment('申請ID');
+            $table->id('application_id')->comment('申請ID');
             $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade')->comment('ユーザーID');
             $table->foreignId('facility_id')->constrained('facilities', 'facility_id')->onDelete('cascade')->comment('施設ID');
-            $table->foreignId('slot_id')->constrained('facility_slots', 'slot_id')->onDelete('cascade')->comment('時間枠ID');
+            $table->foreignId('facility_slot_id')->constrained('facility_slots', 'facility_slot_id')->onDelete('cascade')->comment('時間枠ID');
 
-            $table->foreignId('equipment_id')->constrained('equipments', 'equipment_id')->onDelete('cascade')->comment('備品ID');
+            $table->foreignId('equipment_id')->constrained('equipment', 'equipment_id')->onDelete('cascade')->comment('備品ID');
             $table->foreignId('purpose_id')->constrained('purposes', 'purpose_id')->onDelete('cascade')->comment('目的ID');
             $table->string('event_name')->comment('イベント名');
             $table->date('usage_date')->comment('利用日');

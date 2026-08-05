@@ -11,18 +11,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Application extends Model
 {
     use HasFactory;
+
     protected $table = 'applications';
-    // protected $primaryKey = 'application_id';
-    
-    public $incrementing = false;
-    protected $keyType = 'string';
-    
+
+    protected $primaryKey = 'application_id';
+
+
     protected $fillable = [
-        'application_id',
         'user_id',
         'facility_id',
-        'equipment_id',
-        'slot_id',
+        'facility_slot_id',
         'purpose_id',
         'event_name',
         'usage_date',
@@ -30,38 +28,54 @@ class Application extends Model
         'telephone',
         'status',
     ];
+
+
     protected $casts = [
         'usage_date' => 'date',
         'status' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
-    public function user(): BelongsTo
+
+    public function users(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class);
     }
-    public function facility(): BelongsTo
+
+
+    public function facilities(): BelongsTo
     {
-        return $this->belongsTo(Facility::class, 'facility_id', 'facility_id');
+        return $this->belongsTo(
+            Facility::class,
+            'facility_id',
+            'facility_id'
+        );
     }
-    public function facility_slot(): BelongsTo
+
+
+    public function facilitySlots(): BelongsTo
     {
-        return $this->belongsTo(FacilitySlot::class, 'slot_id', 'slot_id');
+        return $this->belongsTo(
+            FacilitySlot::class,
+            'facility_slot_id',
+            'facility_slot_id'
+        );
     }
-    public function purpose(): BelongsTo
+
+
+    public function purposes(): BelongsTo
     {
-        return $this->belongsTo(Purpose::class, 'purpose_id', 'purpose_id');
-        }
-    public function application_comment(): HasMany
-    {
-        return $this->hasMany(ApplicationComment::class, 'application_id', 'application_id');
-        }
-    
-    public function equipment(): BelongsToMany
-    {
-        return $this->belongsToMany(Equipment::class, 'application_equipment', 'application_id', 'equipment_id');
+        return $this->belongsTo(
+            Purpose::class,
+            'purpose_id',
+            'purpose_id'
+        );
     }
-        
-        }
+
+
+    public function applicationComments(): HasMany
+    {
+        return $this->hasMany(ApplicationComment::class);
+    }
+}
+
         

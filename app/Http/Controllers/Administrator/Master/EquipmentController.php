@@ -24,21 +24,21 @@ class EquipmentController extends Controller
         return (new EquipmentResource($item))->response()->setStatusCode(201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $equipment_id)
     {
         $validated = $request->validate([
             'name' => 'required|string|min:4|max:255',
         ]);
 
-        $item = Equipment::findOrFail($id);
+        $item = Equipment::findOrFail($equipment_id);
         $item->update($validated);
 
         return (new EquipmentResource($item))->response()->setStatusCode(202);
     }
     // 削除処理
-    public function destroy($id)
+    public function destroy($equipment_id)
     {
-        $item = Equipment::findOrFail($id);
+        $item = Equipment::findOrFail($equipment_id);
         $item->delete();
         return response()->json(null, 204);
     }   

@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Auth\AuthenticationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
         'admin.check' => \App\Http\Middleware\AdministratorSessionCheck::class,
     ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
+    // bootstrap/app.php
+    ->withExceptions(function (Exceptions $exceptions) {
+        // APIリクエストで認証に失敗した場合は 401 を返す
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
+        });
     })->create();

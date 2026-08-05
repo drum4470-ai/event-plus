@@ -27,22 +27,22 @@ class FacilityController extends Controller
         return (new FacilityResource($item))->response()->setStatusCode(201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $facility_id)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'building_id' => 'required|exists:buildings,building_id',
         ]);
 
-        $item = Facility::findOrFail($id);
+        $item = Facility::findOrFail($facility_id);
         $item->update($validated);
 
         return (new FacilityResource($item))->response()->setStatusCode(202);
     }
 
-    public function destroy($id)
+    public function destroy($facility_id)
     {
-        $item = Facility::findOrFail($id);
+        $item = Facility::findOrFail($facility_id);
         $item->delete();
 
         // 削除時はデータがないので、JSONメッセージを返します

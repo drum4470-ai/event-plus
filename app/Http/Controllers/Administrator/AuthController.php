@@ -34,9 +34,8 @@ class AuthController extends Controller
         ], 401);
     }
 
-    Auth::login($user);
+    Auth::guard('web')->login($user);
     $request->session()->regenerate();
-
     return response()->json([
         'message' => 'ログイン成功'
     ]);

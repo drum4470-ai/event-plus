@@ -3,10 +3,10 @@ import api from '@/api';
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
-export default function EquipmentRegistration({ existingNames = [] }) {
+export default function EquipmentRegistration({ existingNames = [], onUpdate = () => {} }) {
     const [equipments, setEquipments] = useState(existingNames);
-    const [formData, setFormData] = useState({ name: '', address: ''});
-    const [editData, setEditData] = useState({ name: '', address: ''});
+    const [formData, setFormData] = useState({ name: ''});
+    const [editData, setEditData] = useState({ name: ''});
     
     // モーダル用State管理
     const [confirmModal, setConfirmModal] = useState(false);
@@ -29,13 +29,13 @@ export default function EquipmentRegistration({ existingNames = [] }) {
         setSimilarityWarning('');
         if (!value.trim()) return;
         const isDuplicate = equipments.some(f => f.name === value);
-        if (isDuplicate) setDuplicateError('同じ名前の建物が既に登録されています');
+        if (isDuplicate) setDuplicateError('同じ名前の付帯設備が既に登録されています');
         const similar = equipments.filter(f => calculateSimilarity(f.name, value) > 0.7 && f.name !== value);
         if (similar.length > 0) setSimilarityWarning(`似た名前が存在しています: ${similar.map(f => f.name).join(', ')}`);
     };
 
     const handleRegisterClick = () => {
-        if (!formData.name) return alert('建物名を入力してください');
+        if (!formData.name) return alert('付帯設備名を入力してください');
         if (duplicateError) return alert('入力内容に不備があります');
         setConfirmModal(true);
     };
@@ -44,10 +44,11 @@ export default function EquipmentRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             const response = await api.post('/administrator/equipment', formData);
+            onUpdate();
             setEquipments([...equipments, response.data]);
             setConfirmModal(false);
             setSuccessModal(true);
-            setFormData({ name: '', address: '' });
+            setFormData({ name: '' });
         } catch (err) {
             console.error(err);
         } finally {
@@ -59,6 +60,7 @@ export default function EquipmentRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             const response = await api.put(`/administrator/equipment/${editingItem.equipment_id}`, editData);
+            onUpdate();
             setEquipments(equipments.map(b => b.equipment_id === editingItem.equipment_id ? response.data : b));
             setEditModal(false);
             setEditSuccessModal(true);
@@ -74,6 +76,7 @@ export default function EquipmentRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             await api.delete(`/administrator/equipment/${editingItem.equipment_id}`);
+            onUpdate();
             setEquipments(equipments.filter(b => b.equipment_id !== editingItem.equipment_id));
             setDeleteSecondConfirm(false);
             setDeleteSuccessModal(true);
@@ -86,20 +89,15 @@ export default function EquipmentRegistration({ existingNames = [] }) {
 
     return (
         <div className="w-full">
-            <h2 className="text-xl font-bold mb-4">建物マスタ</h2>
+            <h2 className="text-xl font-bold mb-4">付帯設備マスタ</h2>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
                 <input 
                     value={formData.name || ''} 
                     onChange={(e) => handleNameChange(e.target.value)} 
                     className="w-full p-3 border rounded-lg" 
-                    placeholder="建物名" 
+                    placeholder="付帯設備名" 
                 />
-                <input 
-                    value={formData.address || ''} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} 
-                    className="w-full p-3 border rounded-lg" 
-                    placeholder="住所" 
-                />
+
                 <button 
                     onClick={handleRegisterClick} 
                     disabled={processing} 
@@ -110,14 +108,14 @@ export default function EquipmentRegistration({ existingNames = [] }) {
             </div>
 
             <ul className="mt-6 bg-white rounded-lg border divide-y">
-                {equipments?.map((item) => (
+                {existingNames?.map((item, index) => (
                     <li 
-                        key={item.equipment_id} 
+                        key={item.id ?? index} // idがなければindexを使う
                         onClick={() => { 
                             setEditingItem(item); 
-                            setEditData({name: item.name || '', address: item.address || ''}); 
+                            setEditData({name: item.name}); 
                             setEditModal(true); 
-                        }} 
+                        }}
                         className="p-3 cursor-pointer hover:bg-blue-50"
                     >
                         <div className="font-bold">{item.name}</div>

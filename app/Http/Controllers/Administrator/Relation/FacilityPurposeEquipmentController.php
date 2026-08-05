@@ -4,12 +4,49 @@ namespace App\Http\Controllers\Administrator\Relation;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\FacilityPurposeEquipment;
-use App\Models\FacilityPurpose;
-
 
 class FacilityPurposeEquipmentController extends Controller
 {
-    
+    public function index()
+    {
+        return FacilityPurposeEquipment::with([
+            'facilityPurpose',
+            'equipment',
+        ])->get();
+    }
+
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'facility_purpose_id' => 'required|exists:facility_purposes,id',
+            'equipment_id' => 'required|exists:equipments,id',
+        ]);
+
+        return FacilityPurposeEquipment::create($validated);
+    }
+
+
+    public function update(Request $request, FacilityPurposeEquipment $facilityPurposeEquipment)
+    {
+        $validated = $request->validate([
+            'facility_purpose_id' => 'required|exists:facility_purposes,id',
+            'equipment_id' => 'required|exists:equipments,id',
+        ]);
+
+        $facilityPurposeEquipment->update($validated);
+
+        return response()->json($facilityPurposeEquipment);
+    }
+
+
+    public function destroy(FacilityPurposeEquipment $facilityPurposeEquipment)
+    {
+        $facilityPurposeEquipment->delete();
+
+        return response()->json([
+            'message' => '削除しました'
+        ]);
+    }
 }

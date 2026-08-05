@@ -3,7 +3,7 @@ import api from '@/api';
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
-export default function SlotRegistration({ existingNames = [] }) {
+export default function SlotRegistration({ existingNames = [], onUpdate = () => {} }) {
     const [slots, setSlots] = useState(existingNames);
     const [formData, setFormData] = useState({ name: ''});
     const [editData, setEditData] = useState({ name: ''});
@@ -57,6 +57,7 @@ export default function SlotRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             const response = await api.post('/administrator/slots', formData);
+            onUpdate();
             setSlots([...slots, response.data]);
             setConfirmModal(false);
             setSuccessModal(true);
@@ -72,6 +73,7 @@ export default function SlotRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             const response = await api.put(`/administrator/slots/${editingItem.slot_id}`, editData);
+            onUpdate();
             setSlots(slots.map(b => b.slot_id === editingItem.slot_id ? response.data : b));
             setEditModal(false);
             setEditSuccessModal(true);
@@ -87,6 +89,7 @@ export default function SlotRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             await api.delete(`/administrator/slots/${editingItem.slot_id}`);
+            onUpdate();
             setSlots(slots.filter(b => b.slot_id !== editingItem.slot_id));
             setDeleteSecondConfirm(false);
             setDeleteSuccessModal(true);
@@ -120,7 +123,8 @@ export default function SlotRegistration({ existingNames = [] }) {
 
             <ul className="mt-6 bg-white rounded-lg border divide-y">
             
-                {slots?.map((item) => (
+                {existingNames?.map((item) => (
+                    
                     <li 
                         key={item.slot_id} 
                         onClick={() => { 

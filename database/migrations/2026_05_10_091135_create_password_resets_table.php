@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('password_resets', function (Blueprint $table) {
-            $table->id()->comment('リセットID');
+            $table->id('reset_id')->comment('リセットID');
             $table->uuid('token')->unique()->comment('リセットトークン');
             $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade')->comment('ユーザーID');
             $table->timestamps();

@@ -12,26 +12,37 @@ class Purpose extends Model
     use HasFactory;
 
     protected $table = 'purposes';
-    // protected $primaryKey = 'purpose_id';
-    
+
+    protected $primaryKey = 'purpose_id';
+
     protected $fillable = [
         'name',
     ];
 
-    protected $casts = [];
 
-    public function applications(): HasMany
+    public function facilityPurposes(): HasMany
     {
-        return $this->hasMany(Application::class, 'purpose_id', 'purpose_id');
+        return $this->hasMany(
+            FacilityPurpose::class,
+            'purpose_id',
+            'purpose_id'
+        );
     }
 
-    public function buildingFacilityPurposes(): HasMany
-    {
-        return $this->hasMany(BuildingFacilityPurpose::class, 'purpose_id', 'purpose_id');
-    }
 
     public function facilities(): BelongsToMany
     {
-        return $this->belongsToMany(Facility::class, 'building_facility_purposes', 'purpose_id', 'facility_id');
+        return $this->belongsToMany(
+            Facility::class,
+            'facility_purposes',
+            'purpose_id',
+            'facility_id'
+        );
+    }
+
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class);
     }
 }

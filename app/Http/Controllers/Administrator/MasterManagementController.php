@@ -11,11 +11,21 @@ class MasterManagementController extends Controller
     public function index(Request $request)
     {
         // 必要なデータをモデルから取得（例）
-        $buildings = \App\Models\Building::all()->sortBy('name')->values();
-        $facilities = \App\Models\Facility::with('building')->sortBy('name')->values();
-        $equipments = \App\Models\Equipment::all()->sortBy('name')->values();
-        $purposes = \App\Models\Purpose::all()->sortBy('name')->values();
-        $slots = \App\Models\Slot::all()->sortBy('name')->values();
+        $buildings = \App\Models\Building::orderBy('name')
+        ->get();
+
+        $facilities = \App\Models\Facility::with('buildings')
+            ->orderBy('name')
+            ->get();
+
+        $equipments = \App\Models\Equipment::orderBy('name')
+            ->get();
+
+        $purposes = \App\Models\Purpose::orderBy('name')
+            ->get();
+
+        $slots = \App\Models\Slot::orderBy('name')
+            ->get();
 
         return response()->json([
             'buildings' => $buildings,

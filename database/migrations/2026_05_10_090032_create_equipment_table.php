@@ -13,7 +13,7 @@ return new class extends Migration
     {
         // 💡 ここが 'equipment' を作る正しい処理になっている必要があります！
         Schema::create('equipment', function (Blueprint $table) {
-            $table->id()->comment('設備ID'); // シーダーに合わせて主キーは equipment_id
+            $table->id('equipment_id')->comment('設備ID'); // シーダーに合わせて主キーは equipment_id
             $table->string('name')->comment('設備名');
             $table->timestamps();
         });

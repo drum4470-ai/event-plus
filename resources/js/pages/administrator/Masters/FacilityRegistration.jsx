@@ -3,10 +3,12 @@ import api from '@/api';
 import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
-export default function FacilityRegistration({ existingNames = [] }) {
+export default function FacilityRegistration({ existingNames = [], onUpdate = () => {} }) {
+    console.log(existingNames);
+    
     const [facilities, setFacilities] = useState(existingNames);
-    const [formData, setFormData] = useState({ name: ''});
-    const [editData, setEditData] = useState({ name: ''});
+    const [formData, setFormData] = useState({ building_id: '' , name: ''});
+    const [editData, setEditData] = useState({ building_id: '' ,name: ''});
     
     // モーダル用State管理
     const [confirmModal, setConfirmModal] = useState(false);
@@ -45,10 +47,11 @@ export default function FacilityRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             const response = await api.post('/administrator/facilities', formData);
+            onUpdate();
             setFacilities([...facilities, response.data]);
             setConfirmModal(false);
             setSuccessModal(true);
-            setFormData({ name: '', address: '' });
+            setFormData({ name: '', building_id: '' });
         } catch (err) {
             console.error(err);
         } finally {
@@ -60,6 +63,7 @@ export default function FacilityRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             const response = await api.put(`/administrator/facilities/${editingItem.facility_id}`, editData);
+            onUpdate();
             setFacilities(facilities.map(b => b.facility_id === editingItem.facility_id ? response.data : b));
             setEditModal(false);
             setEditSuccessModal(true);
@@ -75,6 +79,7 @@ export default function FacilityRegistration({ existingNames = [] }) {
         setProcessing(true);
         try {
             await api.delete(`/administrator/facilities/${editingItem.facility_id}`);
+            onUpdate();
             setFacilities(facilities.filter(b => b.facility_id !== editingItem.facility_id));
             setDeleteSecondConfirm(false);
             setDeleteSuccessModal(true);
@@ -87,19 +92,27 @@ export default function FacilityRegistration({ existingNames = [] }) {
 
     return (
         <div className="w-full">
-            <h2 className="text-xl font-bold mb-4">建物マスタ</h2>
+            <h2 className="text-xl font-bold mb-4">施設マスタ</h2>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+
+                <select 
+                    value={formData.building_id || ''} 
+                    onChange={(e) => setFormData(prev => ({ ...prev, building_id: e.target.value }))} 
+                    className="w-full p-3 border rounded-lg"
+                >
+                    <option value="">建物を選択してください</option>
+                    {existingNames?.filter((item, index, self) => self.findIndex(t => t.building_id === item.building_id) === index)
+                        .map((item) => (
+                            <option key={item.buildings.building_id} value={item.buildings.building_id}>
+                                {item.buildings.name}
+                            </option>
+                        ))}
+                </select>
                 <input 
                     value={formData.name || ''} 
                     onChange={(e) => handleNameChange(e.target.value)} 
                     className="w-full p-3 border rounded-lg" 
-                    placeholder="建物名" 
-                />
-                <input 
-                    value={formData.address || ''} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} 
-                    className="w-full p-3 border rounded-lg" 
-                    placeholder="住所" 
+                    placeholder="施設名" 
                 />
                 <button 
                     onClick={handleRegisterClick} 
@@ -111,17 +124,18 @@ export default function FacilityRegistration({ existingNames = [] }) {
             </div>
 
             <ul className="mt-6 bg-white rounded-lg border divide-y">
-                {facilities?.map((item) => (
+                {existingNames?.map((item, index) => (
                     <li 
-                        key={item.facility_id} 
+                        key={item.id ?? index}
                         onClick={() => { 
                             setEditingItem(item); 
-                            setEditData({name: item.name || '', address: item.address || ''}); 
+                            setEditData({name: item.name || '', building_id: item.building_id || ''}); 
                             setEditModal(true); 
-                        }} 
-                        className="p-3 cursor-pointer hover:bg-blue-50"
+                        }}
+                        className="p-3 cursor-pointer hover:bg-blue-50 flex justify-between items-center"
                     >
                         <div className="font-bold">{item.name}</div>
+                        <div className="font-gray">{item.buildings.name}</div>
                     </li>
                 ))}
             </ul>
@@ -130,7 +144,27 @@ export default function FacilityRegistration({ existingNames = [] }) {
             <CommonModal isOpen={confirmModal} onClose={() => setConfirmModal(false)} onConfirm={handleConfirmRegister} title="確認" confirmText="OK">登録しますか？</CommonModal>
             <CommonModal isOpen={successModal} onClose={() => setSuccessModal(false)} onConfirm={() => setSuccessModal(false)} showCancel={false} title="完了" confirmText="OK">登録しました。</CommonModal>
             <CommonModal isOpen={editModal} onClose={() => setEditModal(false)} onConfirm={handleConfirmEdit} onDelete={() => { setEditModal(false); setDeleteFirstConfirm(true); }} title="編集" confirmText="保存">
-                <input value={editData.name} onChange={(e) => setEditData({...editData, name: e.target.value})} className="w-full p-2 border" />
+                <select 
+                    value={editData.building_id || ''} 
+                    onChange={(e) => setEditData(prev => ({ ...prev, building_id: e.target.value }))} 
+                    className="w-full p-2 border"
+                    
+                >
+                    <option value="">所属する建物名</option>
+                    {existingNames?.filter((item, index, self) => self.findIndex(t => t.building_id === item.building_id) === index)
+                        .map((item) => (
+                            <option key={item.buildings.building_id} value={item.buildings.building_id}>
+                                {item.buildings.name}
+                            </option>
+                        ))}
+                </select>
+                <input value={editData.name} onChange={(e) => setEditData({...editData, name: e.target.value})}className="w-full p-2 border mt-2"  />
+                {/* {existingNames?.filter((item, index, self) => self.findIndex(t => t.building_id === item.building_id) === index)
+                        .map((item) => (
+                            <option key={item.buildings.building_id} value={item.buildings.building_id}>
+                                {item.buildings.name}
+                            </option>
+                        ))} */}
             </CommonModal>
             <CommonModal isOpen={deleteFirstConfirm} onClose={() => setDeleteFirstConfirm(false)} onConfirm={() => {setDeleteFirstConfirm(false); setDeleteSecondConfirm(true);}} title="削除確認" confirmText="次へ" isDanger>本当に削除しますか？</CommonModal>
             <CommonModal isOpen={deleteSecondConfirm} onClose={() => setDeleteSecondConfirm(false)} onConfirm={handleSecondDeleteConfirm} title="最終確認" confirmText="削除を実行" isDanger>元に戻せません。</CommonModal>

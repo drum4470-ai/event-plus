@@ -12,9 +12,11 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable; // HasApiTokens を追加
+    use HasApiTokens, HasFactory, Notifiable;
 
-    // protected $primaryKey = 'user_id';
+
+    protected $primaryKey = 'user_id';
+
 
     protected $fillable = [
         'name',
@@ -26,28 +28,32 @@ class User extends Authenticatable
         'role',
     ];
 
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 
-    // リレーション定義はそのまま活かせます
-    public function application(): HasMany
+
+    public function applications(): HasMany
     {
-        return $this->hasMany(Application::class, 'user_id', 'user_id');
+        return $this->hasMany(
+            Application::class,
+            'user_id',
+            'user_id'
+        );
     }
 
-    public function application_equipment(): HasMany
-    {
-        return $this->hasMany(ApplicationEquipment::class, 'user_id', 'user_id');
-    }
 
-    public function password_reset(): HasMany
+    public function applicationComments(): HasMany
     {
-        return $this->hasMany(PasswordReset::class, 'user_id', 'user_id');
+        return $this->hasMany(
+            ApplicationComment::class,
+            'user_id',
+            'user_id'
+        );
     }
 }

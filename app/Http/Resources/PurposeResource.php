@@ -14,6 +14,11 @@ class PurposeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'purpose_id'  => $this->purpose_id,
+            'name'        => $this->name,
+            'created_at'  => $this->created_at ? $this->created_at->format('Y-m-d H:i') : null,
+            'updated_at'  => $this->updated_at ? $this->updated_at->format('Y-m-d H:i') : null,
+        ];
     }
 }
