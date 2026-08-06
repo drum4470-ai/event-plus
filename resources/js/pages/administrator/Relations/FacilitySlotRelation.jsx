@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm } from '@inertiajs/react';
+import api from '@/api';
 
 export default function FacilitySlotsRelation({ existingNames = [] }) {
     // 1. 開始時間と終了時間を管理
@@ -11,8 +11,8 @@ export default function FacilitySlotsRelation({ existingNames = [] }) {
 
     // 2. 登録処理
     const handleRegister = () => {
-        post(route('administrator.facilityslots.store'), {
-            onSuccess: () => reset(),
+        api.post('administrator.facilityslots.store', data).then(() => {
+            reset();
         });
     };
 
