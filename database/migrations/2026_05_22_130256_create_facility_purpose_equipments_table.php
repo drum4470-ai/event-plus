@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // 💡 テーブル名を 'facility_purpose_equipment' に変更
-        Schema::create('facility_purpose_equipment', function (Blueprint $table) {
+        Schema::create('facility_purpose_equipments', function (Blueprint $table) {
 
             $table->id('facility_purpose_equipment_id')
                 ->comment('施設目的設備ID');
@@ -51,6 +51,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('facility_purpose_equipment');
+        Schema::dropIfExists('facility_purpose_equipments');
     }
 };

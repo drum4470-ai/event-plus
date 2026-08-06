@@ -25,30 +25,27 @@ export default function RelationManagement() {
 
 
     // リレーションデータ取得
+// リレーションデータ取得
     const refreshData = useCallback(async () => {
-
         try {
-
             const response = await api.get('/administrator/relation');
-
 
             console.log('relation response', response.data);
 
-
+            // 修正: facilities だけでなく、purposes, equipments, slots もセットする
             setData({
-                facilities: response.data.facilities ?? []
+                facilities: response.data.facilities ?? [],
+                purposes: response.data.purposes ?? [],
+                equipments: response.data.equipments ?? [],
+                slots: response.data.slots ?? []
             });
 
-
         } catch(error) {
-
             console.error(
                 'Relation取得失敗:',
                 error.response ?? error
             );
-
         }
-
     }, []);
 
 

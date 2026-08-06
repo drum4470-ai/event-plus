@@ -10,7 +10,7 @@ class FacilityPurposeEquipment extends Model
 {
     use HasFactory;
 
-    protected $table = 'facility_purpose_equipment';
+    protected $table = 'facility_purpose_equipments';
 
     protected $primaryKey = 'facility_purpose_equipment_id';
 

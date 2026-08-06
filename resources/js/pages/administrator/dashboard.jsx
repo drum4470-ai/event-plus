@@ -16,7 +16,7 @@ export default function Dashboard() {
             <div className="max-w-md mx-auto space-y-6">
                 
                 <section className="space-y-3">
-                    <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">アカウント管理</h2>
+                    <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">管理者メニュー</h2>
                     <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
                         {/* react-router-dom の Link を使用 */}
                         <Link to="/administrator/account" className="flex items-center p-4 hover:bg-gray-50">
