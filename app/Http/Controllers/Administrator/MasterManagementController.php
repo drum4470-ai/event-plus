@@ -15,7 +15,7 @@ class MasterManagementController extends Controller
         ->get();
 
         $facilities = \App\Models\Facility::with('buildings')
-            ->orderBy('name')
+            ->orderBy('building_id')
             ->get();
 
         $equipments = \App\Models\Equipment::orderBy('name')

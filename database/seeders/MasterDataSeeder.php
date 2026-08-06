@@ -16,12 +16,12 @@ class MasterDataSeeder extends Seeder
 
         // 1. 既存データをクリア
         DB::table('facility_slots')->truncate(); 
-        DB::table('facility_purpose_equipment')->truncate();
+        DB::table('facility_purpose_equipments')->truncate();
         DB::table('facility_purposes')->truncate();
         DB::table('facilities')->truncate();
         DB::table('slots')->truncate();
         DB::table('purposes')->truncate();
-        DB::table('equipment')->truncate();
+        DB::table('equipments')->truncate();
         DB::table('buildings')->truncate();
 
         // 2. 建物のサンプルデータ
@@ -64,7 +64,7 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // 6. 付帯設備
-        DB::table('equipment')->insert([
+        DB::table('equipments')->insert([
             ['equipment_id' => 1, 'name' => 'マイク・スピーカー', 'created_at' => $now, 'updated_at' => $now],
             ['equipment_id' => 2, 'name' => 'バスケットボール', 'created_at' => $now, 'updated_at' => $now],
             ['equipment_id' => 3, 'name' => 'プロジェクター', 'created_at' => $now, 'updated_at' => $now],
@@ -82,7 +82,7 @@ class MasterDataSeeder extends Seeder
             ['facility_id' => 11, 'purpose_id' => 4, 'created_at' => $now, 'updated_at' => $now],
         ]);
 
-        DB::table('facility_purpose_equipment')->insert([
+        DB::table('facility_purpose_equipments')->insert([
             ['facility_purpose_id' => 1, 'equipment_id' => 3, 'created_at' => $now, 'updated_at' => $now],
             ['facility_purpose_id' => 3, 'equipment_id' => 2, 'created_at' => $now, 'updated_at' => $now],
         ]);

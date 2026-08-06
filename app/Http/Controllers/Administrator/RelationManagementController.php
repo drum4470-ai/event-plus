@@ -32,13 +32,14 @@ class RelationManagementController extends Controller
         ->orderBy('building_id')
         ->orderBy('name')
         ->get();
-        
 
-
+        // indexメソッドの中に正しくレスポンスを配置する
         return response()->json([
-                'facilities'=>$facilities,
-                'purposes'=>Purpose::all(),
-                'initialTab' => $request->query('tab', 'relation'),
-            ]);
+            'facilities' => $facilities,
+            'purposes' => Purpose::all(),
+            'equipments' => Equipment::all(),
+            'slots' => Slot::all(),
+            'initialTab' => $request->query('tab', 'relation'),
+        ]);
     }
 }

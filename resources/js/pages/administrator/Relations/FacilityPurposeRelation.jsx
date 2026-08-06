@@ -8,14 +8,13 @@ export default function FacilityPurposeRelation({
 }) {
     const [selectedPurposesMap, setSelectedPurposesMap] = useState({});
 
-    // === 【追加】もし親からの purposes が空の場合、facilities から利用目的の候補を自動抽出する ===
-    // ※ バックエンドのデータ構造（fp.purposes）に id や name が含まれている前提です
+   
     const allPurposes = purposes.length > 0 ? purposes : (() => {
         const purposeMap = new Map();
+        
         facilities.forEach(facility => {
             facility.facility_purposes?.forEach(fp => {
-                if (fp.purposes) {
-                    // purpose_id と name をキーにして重複を防ぐ
+                if (fp.purposes) {                   
                     purposeMap.set(fp.purpose_id, fp.purposes);
                 }
             });
