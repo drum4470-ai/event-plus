@@ -5,16 +5,18 @@ use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
 
 use App\Http\Controllers\User\AuthController as UserAuthController;
 
-// routes/web.php
-// 1. 認証不要なルート（ログインなど）
-Route::prefix('api/administrator')->group(function () {
-    // Route::post('/login', [AdminAuthController::class, 'login']);
+
+Route::prefix('administrator')
+    ->group(function () {
+    // ログイン処理（POST）
+    Route::post('/login', [AdminAuthController::class, 'login']);
+
+    Route::get('/login', function () {
+        return view('app');
+    })->name('login');
 });
 
-// 3. SPA用ルーティング（上記にマッチしないものは全て React へ）
-// routes/web.php
 
-// 管理者用
 Route::get('/administrator/{any?}', function () {
     return view('app'); // 管理者用レイアウト
 })->where('any', '.*');

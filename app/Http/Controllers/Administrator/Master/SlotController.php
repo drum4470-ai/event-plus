@@ -9,10 +9,17 @@ use App\Http\Resources\SlotResource;
 
 class SlotController extends Controller
 {
-     public function index()
-    {
-        return response()->json(Slot::all(), 200);
-    }
+    public function index(){
+    try {
+            $slots = \App\Models\Slot::all();
+            // ここで確認
+            return SlotResource::collection($slots);
+        } catch (\Exception $e) {
+            // エラー詳細をログに吐き出す
+            \Log::error('APIエラー:' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }    }
+
 
     // 新規作成
     public function store(Request $request)
@@ -21,25 +28,25 @@ class SlotController extends Controller
             'name' => 'required|string|max:255',
         ]);
         $item = Slot::create($validated);
-        return response()->json($item, 201);
+        return (new SlotResource($item))->response()->setStatusCode(201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $slot_id)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        $item = Slot::findOrFail($id);
+        $item = Slot::findOrFail($slot_id);
         $item->update($validated);
 
         return (new SlotResource($item))->response()->setStatusCode(202);
     }
     // 削除処理
-    public function destroy($id)
+    public function destroy($slot_id)
     {
-        $item = Slot::findOrFail($id);
+        $item = Slot::findOrFail($slot_id);
         $item->delete();
-        return response()->json(['message' => '削除しました'], 200);
+        return response()->json(null, 204);
     }
 }

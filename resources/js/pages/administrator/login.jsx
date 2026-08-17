@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import api from '@/api';
+import axios from 'axios'; // axiosをインポート
+import api, { csrfApi } from '@/api';
 
 export default function Login() {
     const [password, setPassword] = useState('');
@@ -15,11 +15,14 @@ export default function Login() {
         setError('');
 
         try {
-            // CSRFトークンを取得してからログイン実行
-            // await api.get('/sanctum/csrf-cookie');
-            // await api.post('/administrator/login');
+           
+            await csrfApi.get('/sanctum/csrf-cookie');
 
-            // 成功したらダッシュボードへ
+            await csrfApi.post('/administrator/login', {
+                password,
+            });
+
+            // 3. 成功したら遷移
             navigate('/administrator/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'ログインに失敗しました');
@@ -27,6 +30,9 @@ export default function Login() {
             setProcessing(false);
         }
     };
+
+    // ...以下レンダリング部分は変更なし
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">

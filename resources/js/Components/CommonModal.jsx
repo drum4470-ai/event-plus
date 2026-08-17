@@ -38,7 +38,16 @@ export default function CommonModal({
                         )}
                         {showConfirm && (
                             <button 
-                                onClick={onConfirm || onClose} // onConfirmがなければ閉じるボタンとして機能
+                                onClick={() => {
+                                    console.log("OKボタンが押されました");
+                                    console.log("onConfirm =", onConfirm);
+
+                                    if (onConfirm) {
+                                        onConfirm();
+                                    } else {
+                                        onClose();
+                                    }
+                                }}
                                 disabled={isLoading}
                                 className={`px-4 py-2 text-white rounded-lg ${isDanger ? 'bg-red-600' : 'bg-blue-600'}`}
                             >

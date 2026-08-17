@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // ★追加：Authファサード
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -12,20 +14,36 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate(['']);
+        $request->validate([
+        'password' => ['required'],
+    ]);
 
-        // Guard名は config/auth.php の guards 設定に合わせてください
-        if (Auth::guard('admin')->attempt($credentials)) {
-            $request->session()->regenerate();
-            return response()->json(['message' => 'ログイン成功'], 200);
-        }
+    // 認証を試みる前に、ユーザーが存在するかすら確認する
+    $user = User::first();
 
-        return response()->json(['message' => 'パスワードが正しくありません'], 401);
+    if (!$user) {
+        return response()->json([
+            'message' => '管理者が存在しません'
+        ], 404);
+    }
+
+    // 認証失敗
+    if (!Hash::check($request->password, $user->password)) {
+        return response()->json([
+            'message' => 'パスワードが違います'
+        ], 401);
+    }
+
+    Auth::guard('web')->login($user);
+    $request->session()->regenerate();
+    return response()->json([
+        'message' => 'ログイン成功'
+    ]);
     }
 
     public function logout(Request $request)
     {
-        Auth::guard('admin')->logout(); // ★推奨：ガードのログアウトメソッドを呼び出す
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

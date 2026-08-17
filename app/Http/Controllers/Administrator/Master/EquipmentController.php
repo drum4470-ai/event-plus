@@ -11,7 +11,7 @@ class EquipmentController extends Controller
 {
     public function index()
     {
-        return response()->json(Equipment::all(), 200);
+        return EquipmentResource::collection(Equipment::all())->response()->setStatusCode(200);
     }
 
     // 新規作成
@@ -21,25 +21,25 @@ class EquipmentController extends Controller
             'name' => 'required|string|max:255',
         ]);
         $item = Equipment::create($validated);
-        return response()->json($item, 201);
+        return (new EquipmentResource($item))->response()->setStatusCode(201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $equipment_id)
     {
         $validated = $request->validate([
             'name' => 'required|string|min:4|max:255',
         ]);
 
-        $item = Equipment::findOrFail($id);
+        $item = Equipment::findOrFail($equipment_id);
         $item->update($validated);
 
         return (new EquipmentResource($item))->response()->setStatusCode(202);
     }
     // 削除処理
-    public function destroy($id)
+    public function destroy($equipment_id)
     {
-        $item = Equipment::findOrFail($id);
+        $item = Equipment::findOrFail($equipment_id);
         $item->delete();
-        return response()->json(['message' => '削除しました'], 200);
-    }
+        return response()->json(null, 204);
+    }   
 }

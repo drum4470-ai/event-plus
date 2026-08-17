@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         // 💡 ここが 'equipment' を作る正しい処理になっている必要があります！
-        Schema::create('equipment', function (Blueprint $table) {
-            $table->id()->comment('設備ID'); // シーダーに合わせて主キーは equipment_id
+        Schema::create('equipments', function (Blueprint $table) {
+            $table->id('equipment_id')->comment('設備ID'); // シーダーに合わせて主キーは equipment_id
             $table->string('name')->comment('設備名');
             $table->timestamps();
         });
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('equipment');
+        Schema::dropIfExists('equipments');
     }
 };

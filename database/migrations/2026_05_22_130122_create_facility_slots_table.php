@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('facility_slots', function (Blueprint $table) {
-            $table->id()->comment('施設時間枠ID');
+            $table->id('facility_slot_id')->comment('施設時間枠ID');
             // 施設への外部キー（これ経由で建物も特定できます）
             $table->foreignId('facility_id')->constrained('facilities', 'facility_id')->onDelete('cascade')->comment('施設ID');
             // 時間枠への外部キー

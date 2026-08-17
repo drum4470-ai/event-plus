@@ -21,8 +21,8 @@ class PasswordReset extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-    public function user(): BelongsTo
+    public function users(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id'); 
+        return $this->belongsTo(User::class); 
         }
 }

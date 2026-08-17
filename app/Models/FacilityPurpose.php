@@ -6,67 +6,56 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class FacilityPurpose extends Model
 {
     use HasFactory;
 
-    // 💡 テーブル名を設定（マイグレーションで設定した名前に合わせます）
     protected $table = 'facility_purposes';
 
-    // 💡 マイグレーションで $table->id() としたので、カスタム主キーの指定は不要（デフォルトの 'id' を使うため削除）
-    // protected $primaryKey = 'building_facility_purpose_id';
+    protected $primaryKey = 'facility_purpose_id';
 
     protected $fillable = [
         'facility_id',
-        'purpose_id',
+        'purpose_id'
     ];
 
-    /**
-     * 💡 建物リレーション（building()）はここからは削除します！
-     * コントローラー側で「facility.building」と繋げて呼ぶことで、
-     * 施設経由で建物データを安全に引っ張ってこれるようになります。
-     */
 
-    /**
-     * この紐付けの対象となっている「施設（部屋）」を取得
-     */
-    public function facility(): BelongsTo
+    public function facilities(): BelongsTo
     {
-        return $this->belongsTo(Facility::class, 'facility_id', 'facility_id');
-    }
-
-    /**
-     * この紐付けの対象となっているマスターの「目的」を取得
-     */
-    public function purpose(): BelongsTo
-    {
-        return $this->belongsTo(Purpose::class, 'purpose_id', 'purpose_id');
-    }
-
-    /**
-     * この「施設×目的」のペアに紐づいている設備設定（中間レコード）を全取得
-     */
-    public function facilityPurposeEquipments(): HasMany
-    {
-        return $this->hasMany(
-            FacilityPurposeEquipment::class, 
-            'facility_purpose_id', 
-            'id' // 新しい中間テーブルの親ID
+        return $this->belongsTo(
+            Facility::class,
+            'facility_id',
+            'facility_id'
         );
     }
 
-    /**
-     * この「施設×目的」に紐づく設備マスタを一気に多対多で取得したい場合
-     */
-    public function equipments(): BelongsToMany
+
+    public function purposes(): BelongsTo
     {
-        return $this->belongsToMany(
-            Equipment::class,
-            'facility_purpose_equipment', // 新しい中間テーブル名
+        return $this->belongsTo(
+            Purpose::class,
+            'purpose_id',
+            'purpose_id'
+        );
+    }
+// もし自分自身ではなく、別の関連であればここを修正
+    public function facilityPurposes(): HasMany
+    {
+        return $this->hasMany(
+            FacilityPurpose::class,
+            'facility_purpose_id', // 外部キー
+            'facility_purpose_id'  // ローカルキー
+        );
+    }
+
+
+    public function facilityPurposeEquipments(): HasMany
+    {
+        return $this->hasMany(
+            FacilityPurposeEquipment::class,
             'facility_purpose_id',
-            'equipment_id'
+            'facility_purpose_id'
         );
     }
 }

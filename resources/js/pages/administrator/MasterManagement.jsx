@@ -1,35 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import BuildingRegistration from './Masters/BuildingRegistration';
 import FacilityRegistration from './Masters/FacilityRegistration';
 import PurposeRegistration from './Masters/PurposeRegistration';
 import EquipmentRegistration from './Masters/EquipmentRegistration';
 import SlotRegistration from './Masters/SlotRegistration';
+import api, { csrfApi } from '@/api';
 
-export default function MasterManagement({ type, submitUrls = {}, ...props }) {
-    const [activeTab, setActiveTab] = useState('facility'); // 'facility' か 'building'
+export default function MasterManagement() {
     const [data, setData] = useState({
         buildings: [],
         facilities: [],
         purposes: [],
-        equipment: [],
+        equipments: [],
         slots: []
     });
+    const [activeTab, setActiveTab] = useState('facility');
     const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Scribeで確認したAPIを叩く
-                const res = await api.get('/administrator/master'); // 全マスタを返すAPIを作るか、個別に叩く
-                setData(res.data);
-            } catch (error) {
-                console.error("データ取得失敗:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
+
+    // データの再取得関数を定義
+    // useCallbackで囲むことで、子コンポーネントに渡しても無駄な再レンダリングを防ぐ
+    const refreshData = useCallback(async () => {
+        try {
+            const response = await api.get('/administrator/master');
+
+            setData({
+                buildings: response.data.buildings ?? [],
+                facilities: response.data.facilities ?? [],
+                purposes: response.data.purposes ?? [],
+                equipments: response.data.equipments ?? [],
+                slots: response.data.slots ?? [],
+            });
+
+        } catch (error) {
+            console.error("データ取得失敗:", error);
+        }
     }, []);
-    if (loading) return <div>読み込み中...</div>;
+
+    useEffect(() => {
+        const init = async () => {
+            await csrfApi.get('/sanctum/csrf-cookie');
+            await refreshData();
+            setLoading(false);
+        };
+        init();
+    }, [refreshData]);
 
     const tabs = [
         { id: 'facility', label: '施設マスタ' },
@@ -39,28 +53,38 @@ export default function MasterManagement({ type, submitUrls = {}, ...props }) {
         { id: 'slot', label: '時間帯マスタ' },
     ];
 
-    // 戻り値の return の中身をこのように修正してください
-return (
+    // 各コンポーネントに refreshData を onUpdate として渡す
+    const ComponentMap = {
+        facility: () => <FacilityRegistration onUpdate={refreshData} existingNames={data.facilities} buildings={data.buildings} />,
+        building: () => <BuildingRegistration onUpdate={refreshData} existingNames={data.buildings} />,
+        purpose: () => <PurposeRegistration onUpdate={refreshData} existingNames={data.purposes} />,
+        equipment: () => <EquipmentRegistration onUpdate={refreshData} existingNames={data.equipments} />,
+        slot: () => <SlotRegistration onUpdate={refreshData} existingNames={data.slots} />
+    };
+
+    if (loading) return <div className="p-8">読み込み中...</div>;
+
+    return (
         <div className="p-8">
-            {/* タブボタン部分はそのまま */}
             <div className="flex space-x-4 border-b mb-6">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`pb-2 px-4 font-bold ${activeTab === tab.id ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-400'}`}
+                        className={`pb-2 px-4 font-bold transition-colors ${
+                            activeTab === tab.id 
+                            ? 'border-b-2 border-indigo-600 text-indigo-600' 
+                            : 'text-gray-400 hover:text-gray-600'
+                        }`}
                     >
                         {tab.label}
                     </button>
                 ))}
             </div>
 
-            {/* ここでアクティブなものだけを表示 */}
-            {activeTab === 'building' && <BuildingRegistration existingNames={data.buildings} />}
-            {activeTab === 'facility' && <FacilityRegistration existingNames={data.facilities} buildings={data.buildings}/>}
-            {activeTab === 'purpose' && <PurposeRegistration existingNames={data.purposes} />}
-            {activeTab === 'equipment' && <EquipmentRegistration existingNames={data.equipment} />}
-            {activeTab === 'slot' && <SlotRegistration existingNames={data.slots} />}
+            <div className="mt-4">
+                {ComponentMap[activeTab] ? ComponentMap[activeTab]() : <div>選択してください</div>}
+            </div>
         </div>
     );
 }
