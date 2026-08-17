@@ -31,6 +31,7 @@ return new class extends Migration
         });
 
         Schema::create('sessions', function (Blueprint $table) {
+            // ここのidが500エラーの原因になっている可能性があります。あとで修正確認
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();

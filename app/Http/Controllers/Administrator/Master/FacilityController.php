@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Administrator\Master;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Facility;
+use App\Models\FacilityPurpose;
+use App\Models\FacilityPurposeEquipment;
+use App\Models\FacilitySlot;
 use App\Http\Resources\FacilityResource;
+use Illuminate\Validation\Rule;
 
 class FacilityController extends Controller
 {
@@ -17,7 +21,13 @@ class FacilityController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'string',
+            // 💡 同じ building_id の中だけで name が重複していないかチェック
+                Rule::unique('facilities')->where(function ($query) use ($request) {
+                return $query->where('building_id', $request->building_id);
+                }),
+            ],
             'building_id' => 'required|exists:buildings,building_id', 
         ]);
 

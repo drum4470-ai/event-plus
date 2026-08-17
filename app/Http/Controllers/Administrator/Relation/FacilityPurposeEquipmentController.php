@@ -11,7 +11,7 @@ class FacilityPurposeEquipmentController extends Controller
     public function index()
     {
         return FacilityPurposeEquipment::with([
-            'facilityPurpose',
+            'facility_purpose',
             'equipment',
         ])->get();
     }
@@ -20,8 +20,8 @@ class FacilityPurposeEquipmentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'facility_purpose_id' => 'required|exists:facility_purposes,id',
-            'equipment_id' => 'required|exists:equipments,id',
+            'facility_purpose_id' => 'required|exists:facility_purposes,facility_purpose_id',
+            'equipment_id' => 'required|exists:equipments,equipment_id',
         ]);
 
         return FacilityPurposeEquipment::create($validated);
@@ -31,8 +31,8 @@ class FacilityPurposeEquipmentController extends Controller
     public function update(Request $request, FacilityPurposeEquipment $facilityPurposeEquipment)
     {
         $validated = $request->validate([
-            'facility_purpose_id' => 'required|exists:facility_purposes,id',
-            'equipment_id' => 'required|exists:equipments,id',
+            'facility_purpose_id' => 'required|exists:facility_purposes,facility_purpose_id',
+            'equipment_id' => 'required|exists:equipments,equipment_id',
         ]);
 
         $facilityPurposeEquipment->update($validated);
