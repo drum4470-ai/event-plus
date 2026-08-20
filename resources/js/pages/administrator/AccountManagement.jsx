@@ -1,72 +1,104 @@
-import React from 'react';
-import { useForm, Link } from '@inertiajs/react';
+import React, { useEffect, useState } from 'react';
+import api from '@/api';
+import AccountForm from './Accounts/AccountForm';
+import AccountList from './Accounts/AccountList';
 
-export default function AccountManagement({ roles }) {
-    const { data, setData, post, processing, errors } = useForm({
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: '',
-        role_id: roles[0]?.id || ''
-    });
+export default function AccountManagement() {
 
-    const submit = (e) => {
-        e.preventDefault();
-        post('/administrator/account-registration');
+    // アカウント一覧
+    const [accounts, setAccounts] = useState([]);
+
+    // 現在編集しているアカウント
+    // nullなら新規登録
+    const [editingAccount, setEditingAccount] = useState(null);
+
+    // 読み込み状態
+    const [loading, setLoading] = useState(false);
+
+    // エラー
+    const [error, setError] = useState('');
+
+
+    // アカウント一覧取得
+    const fetchAccounts = async () => {
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await api.get('/administrator/accounts');
+
+            setAccounts(response.data.data);
+
+        } catch (error) {
+            console.error('アカウント取得エラー:', error);
+
+            setError(
+                error.response?.data?.message ||
+                'アカウントの取得に失敗しました。'
+            );
+
+        } finally {
+            setLoading(false);
+        }
     };
 
+
+    // 初回読み込み
+    useEffect(() => {
+        fetchAccounts();
+    }, []);
+
+
+    // 登録・編集完了
+    const handleComplete = () => {
+        setEditingAccount(null);
+
+        // 一覧を再取得
+        fetchAccounts();
+    };
+
+
     return (
-        <div className="p-8 max-w-lg mx-auto">
-            <h1 className="text-2xl font-bold mb-6">アカウント新規登録</h1>
-            <form onSubmit={submit} className="space-y-4">
-                {/* 名前 */}
-                <input 
-                    className="w-full p-2 border rounded"
-                    placeholder="名前"
-                    value={data.name}
-                    onChange={e => setData('name', e.target.value)}
-                />
-                {errors.name && <div className="text-red-500 text-sm">{errors.name}</div>}
+        <div className="p-6">
 
-                {/* メールアドレス */}
-                <input 
-                    className="w-full p-2 border rounded"
-                    placeholder="メール"
-                    value={data.email}
-                    onChange={e => setData('email', e.target.value)}
-                />
-                {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
+            <h1 className="mb-6 text-2xl font-bold">
+                アカウント管理
+            </h1>
 
-                {/* パスワード */}
-                <input 
-                    type="password"
-                    className="w-full p-2 border rounded"
-                    placeholder="パスワード"
-                    onChange={e => setData('password', e.target.value)}
-                />
-                <input 
-                    type="password"
-                    className="w-full p-2 border rounded"
-                    placeholder="パスワード(確認)"
-                    onChange={e => setData('password_confirmation', e.target.value)}
-                />
-                {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
 
-                {/* 権限選択 */}
-                <select 
-                    className="w-full p-2 border rounded"
-                    onChange={e => setData('role_id', e.target.value)}
-                >
-                    {roles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
-                </select>
+            {/* 登録・編集フォーム */}
+            <AccountForm
+                editingAccount={editingAccount}
+                onComplete={handleComplete}
+            />
 
-                <button 
-                    disabled={processing}
-                    className="w-full py-2 bg-indigo-600 text-white rounded"
-                >
-                    登録する
-                </button>
-            </form>
+
+            {/* エラー */}
+            {error && (
+                <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+                    {error}
+                </div>
+            )}
+
+
+            {/* 読み込み中 */}
+            {loading && (
+                <p className="mb-4">
+                    読み込み中...
+                </p>
+            )}
+
+
+            {/* 一覧 */}
+            {!loading && (
+                <AccountList
+                    accounts={accounts}
+                    onEdit={(account) => {
+                        setEditingAccount(account);
+                    }}
+                />
+            )}
+
         </div>
     );
 }

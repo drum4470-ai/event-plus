@@ -385,7 +385,7 @@ class MasterDataSeeder extends Seeder
             'telephone' => '03-1234-5678',
             'address' => '東京都千代田区',
             'company' => 'Event Plus',
-            'role' => 1,
+            'role' => 'administrator',
             'created_at' => $now,
             'updated_at' => $now,
             ],

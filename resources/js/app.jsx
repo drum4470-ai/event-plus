@@ -21,6 +21,7 @@ import FacilityPurposeEquipmentRelation from './Pages/Administrator/Relations/Fa
 import FacilityPurposeRelation from './Pages/Administrator/Relations/FacilityPurposeRelation';
 import FacilitySlotRelation from './Pages/Administrator/Relations/FacilitySlotRelation';
 
+import AccountManagement from './Pages/Administrator/AccountManagement';
 
 const App = () => (
     <BrowserRouter>
@@ -43,6 +44,9 @@ const App = () => (
                 <Route path="facilityPurpose-equipment-relation" element={<FacilityPurposeEquipmentRelation />} />
                 <Route path="facility-purpose-relation" element={<FacilityPurposeRelation />} />
                 <Route path="facility-slot-relation" element={<FacilitySlotRelation />} />
+            </Route>
+            <Route path="/administrator/account" element={<AccountManagement />}>
+
             </Route>
             
         </Routes>

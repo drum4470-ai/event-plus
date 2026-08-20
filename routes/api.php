@@ -30,7 +30,7 @@ Route::middleware('auth:sanctum')->prefix('administrator')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/master', [MasterManagementController::class, 'index']);
     Route::get('/relation', [RelationManagementController::class, 'index']);
-    Route::get('/account', [AccountController::class, 'index']);
+
     Route::post('/logout', [AdminAuthController::class, 'logout']);
 
     // 各マスター管理の API
@@ -39,8 +39,11 @@ Route::middleware('auth:sanctum')->prefix('administrator')->group(function () {
     Route::apiResource('equipment', EquipmentController::class);
     Route::apiResource('purposes', PurposeController::class);
     Route::apiResource('slots', SlotController::class);
-    Route::apiResource('facility-purpose-equipment', FacilityPurposeEquipmentController::class);
-    Route::apiResource('facility-purpose', FacilityPurposeController::class);
-    Route::apiResource('facility-slot', FacilitySlotController::class);
+    Route::apiResource('facility-purpose-equipments', FacilityPurposeEquipmentController::class);
+    Route::apiResource('facility-purposes', FacilityPurposeController::class);
+    Route::apiResource('facility-slots', FacilitySlotController::class);
+
+    Route::apiResource('accounts', AccountController::class);
+    Route::patch('/accounts/{user}/password', [AccountController::class, 'updatePassword']);
     // ... 他のコントローラーもここに追加
 });
