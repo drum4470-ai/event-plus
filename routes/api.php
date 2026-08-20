@@ -36,7 +36,7 @@ Route::middleware('auth:sanctum')->prefix('administrator')->group(function () {
     // 各マスター管理の API
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('buildings', BuildingController::class);
-    Route::apiResource('equipment', EquipmentController::class);
+    Route::apiResource('equipments', EquipmentController::class);
     Route::apiResource('purposes', PurposeController::class);
     Route::apiResource('slots', SlotController::class);
     Route::apiResource('facility-purpose-equipments', FacilityPurposeEquipmentController::class);

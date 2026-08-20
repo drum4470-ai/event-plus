@@ -57,7 +57,7 @@ export default function FacilityPurposeEquipmentRelation({
                     console.log('送信データ確認:', payload);
 
                     return api.post(
-                        '/administrator/facility-purpose-equipment',
+                        '/administrator/facility-purpose-equipments',
                         payload
                     );
                 })
@@ -94,7 +94,7 @@ export default function FacilityPurposeEquipmentRelation({
 
         try {
             await api.delete(
-                `/administrator/facility-purpose-equipment/${fpe.facility_purpose_equipment_id}`
+                `/administrator/facility-purpose-equipments/${fpe.facility_purpose_equipment_id}`
             );
 
             onUpdate();

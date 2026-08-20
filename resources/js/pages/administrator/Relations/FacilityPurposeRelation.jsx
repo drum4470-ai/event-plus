@@ -52,7 +52,7 @@ const handleRegister = async (facilityId) => {
 
                     console.log('送信データ確認:', payload);
 
-                    return api.post('/administrator/facility-purpose', payload);
+                    return api.post('/administrator/facility-purposes', payload);
                 })
             );
 
@@ -68,7 +68,7 @@ const handleRegister = async (facilityId) => {
 
     const handleDelete = async (fp) => {
         try {
-            await api.delete(`/administrator/facility-purpose/${fp.facility_purpose_id}`);
+            await api.delete(`/administrator/facility-purposes/${fp.facility_purpose_id}`);
             onUpdate();
         } catch (error) {
             console.error('削除失敗', error.response ?? error);

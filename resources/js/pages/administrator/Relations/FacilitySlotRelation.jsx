@@ -40,7 +40,7 @@ export default function FacilitySlotRelation({
     const handleDelete = async (facilitySlotId) => {
         try {
             await api.delete(
-                `/administrator/facility-slot/${facilitySlotId}`
+                `/administrator/facility-slots/${facilitySlotId}`
             );
 
             onUpdate();
@@ -70,7 +70,7 @@ export default function FacilitySlotRelation({
             await Promise.all(
                 selectedSlots.map(slotId =>
                     api.post(
-                        '/administrator/facility-slot',
+                        '/administrator/facility-slots',
                         {
                             facility_id: facilityId,
                             slot_id: slotId
