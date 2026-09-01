@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Link, useNavigate } from 'react-router-dom';
 
-export default function Dashboard() {
+export default function AdministratorDashboard() {
 
 
    return (

@@ -15,27 +15,32 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-        'password' => ['required'],
-    ]);
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
     // 認証を試みる前に、ユーザーが存在するかすら確認する
-    $user = User::first();
+    $user = User::where('email', $request->email)
+    ->where('role', 'administrator')
+    ->first();
 
     if (!$user) {
         return response()->json([
-            'message' => '管理者が存在しません'
+            'message' => '管理者アカウントと一致しませんでした'
         ], 404);
     }
 
     // 認証失敗
     if (!Hash::check($request->password, $user->password)) {
         return response()->json([
-            'message' => 'パスワードが違います'
+            'message' => 'パスワードが一致しません'
         ], 401);
     }
 
-    Auth::guard('web')->login($user);
+    Auth::guard('admin')->login($user);
+
     $request->session()->regenerate();
+    
     return response()->json([
         'message' => 'ログイン成功'
     ]);

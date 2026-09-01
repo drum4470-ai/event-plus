@@ -1,27 +1,33 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\AdministratorSessionCheck;
-use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
-
-use App\Http\Controllers\User\AuthController as UserAuthController;
+use App\Http\Controllers\User\UserController;
 
 
-Route::prefix('administrator')
-    ->group(function () {
-    // ログイン処理（POST）
-    Route::post('/login', [AdminAuthController::class, 'login']);
-
-    Route::get('/login', function () {
-        return view('app');
-    })->name('login');
+// 管理者ログイン画面
+Route::get('/administrator/login', function () {
+    return view('app');
 });
 
+// 利用者ログイン画面
+Route::get('/login', function () {
+    return view('app');
+});
 
+Route::post('/user-registration', [UserController::class, 'store']);
+
+Route::get('/reset-password/{token}', function ($token) {
+    return view('app');
+})->name('password.reset');
+
+
+// 管理者画面
 Route::get('/administrator/{any?}', function () {
-    return view('app'); // 管理者用レイアウト
+    return view('app');
 })->where('any', '.*');
 
-// 一般ユーザー用
+// 利用者画面
 Route::get('/user/{any?}', function () {
-    return view('app'); // ユーザー用レイアウト（もし必要なら別のviewでもOK）
+    return view('app');
 })->where('any', '.*');
+

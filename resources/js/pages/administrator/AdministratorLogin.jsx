@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // axiosをインポート
 import api, { csrfApi } from '@/api';
 
-export default function Login() {
+export default function AdministratorLogin() {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [processing, setProcessing] = useState(false);
@@ -18,7 +18,8 @@ export default function Login() {
            
             await csrfApi.get('/sanctum/csrf-cookie');
 
-            await csrfApi.post('/administrator/login', {
+            await api.post('/administrator/login', {
+                email,
                 password,
             });
 
@@ -39,6 +40,13 @@ export default function Login() {
             <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg">
                 <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">管理者ログイン</h1>
                 <form onSubmit={submit} className="space-y-6">
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md"
+                        placeholder="メールアドレスを入力"
+                    />
                     <input
                         type="password"
                         value={password}

@@ -1,12 +1,11 @@
 <?php
+use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Administrator\RelationManagementController;
-use App\Http\Controllers\Administrator\DashboardController;
-use App\Http\Controllers\Administrator\MasterManagementController;
-use App\Http\Controllers\Administrator\AccountController;
 use App\Http\Controllers\Administrator\AuthController as AdminAuthController;
-
-
+use App\Http\Controllers\Administrator\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Administrator\MasterManagementController;
+use App\Http\Controllers\Administrator\RelationManagementController;
+use App\Http\Controllers\Administrator\AccountController;
 use App\Http\Controllers\Administrator\Master\FacilityController;
 use App\Http\Controllers\Administrator\Master\BuildingController;
 use App\Http\Controllers\Administrator\Master\EquipmentController;
@@ -16,24 +15,24 @@ use App\Http\Controllers\Administrator\Relation\FacilityPurposeEquipmentControll
 use App\Http\Controllers\Administrator\Relation\FacilityPurposeController;
 use App\Http\Controllers\Administrator\Relation\FacilitySlotController;
 
+use App\Http\Controllers\User\AuthController as UserAuthController;
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\ResetPasswordController;
+use App\Http\Controllers\User\ForgotPasswordController;
 
-// Route::middleware(['web'])->prefix('administrator')->group(function () {
-//     Route::post('/login', [AdminAuthController::class, 'login']);
-// });
-// Route::middleware('auth:sanctum')->get('/test', function (\Illuminate\Http\Request $request) {
-//     return response()->json([
-//         'check' => auth()->check(),
-//         'user' => auth()->user(),
-//     ]);
-// });
-Route::middleware('auth:sanctum')->prefix('administrator')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+Route::post('/administrator/login', [AdminAuthController::class, 'login']);
+Route::post('/user/login', [UserAuthController::class, 'login']);
+Route::post('/user-registration', [UserController::class, 'store']);
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
+Route::post('/reset-password', [ResetPasswordController::class,'resetpassword']);
+
+Route::middleware('auth:admin')->prefix('administrator')->group(function () {
+    Route::post('/logout', [AdminAuthController::class, 'logout']);
+    Route::get('/dashboard', [AdminDashboardController::class, 'index']);
     Route::get('/master', [MasterManagementController::class, 'index']);
     Route::get('/relation', [RelationManagementController::class, 'index']);
-
-    Route::post('/logout', [AdminAuthController::class, 'logout']);
-
-    // 各マスター管理の API
+    Route::patch('/accounts/{user}/password', [AccountController::class, 'updatePassword']);    
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('equipments', EquipmentController::class);
@@ -42,8 +41,11 @@ Route::middleware('auth:sanctum')->prefix('administrator')->group(function () {
     Route::apiResource('facility-purpose-equipments', FacilityPurposeEquipmentController::class);
     Route::apiResource('facility-purposes', FacilityPurposeController::class);
     Route::apiResource('facility-slots', FacilitySlotController::class);
-
     Route::apiResource('accounts', AccountController::class);
-    Route::patch('/accounts/{user}/password', [AccountController::class, 'updatePassword']);
-    // ... 他のコントローラーもここに追加
+    
+    });
+    
+    Route::middleware('auth:user')->prefix('user')->group(function () {
+        Route::post('/logout', [UserAuthController::class, 'logout']);
+        Route::get('/dashboard', [UserDashboardController::class, 'index']);
 });
