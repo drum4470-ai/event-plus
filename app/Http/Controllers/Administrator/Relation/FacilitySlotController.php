@@ -20,8 +20,8 @@ class FacilitySlotController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'facility_id' => 'required|exists:facilities,id',
-            'slot_id' => 'required|exists:slots,id',
+            'facility_id' => 'required|exists:facilities,facility_id',
+            'slot_id' => 'required|exists:slots,slot_id',
         ]);
 
         return FacilitySlot::create($validated);

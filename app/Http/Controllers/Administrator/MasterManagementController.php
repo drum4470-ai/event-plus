@@ -11,11 +11,13 @@ class MasterManagementController extends Controller
     public function index(Request $request)
     {
         // 必要なデータをモデルから取得（例）
-        $buildings = \App\Models\Building::orderBy('name')
-        ->get();
+        $buildings = \App\Models\Building::orderBy('building_id')
+            ->orderBy('name')
+            ->get();
 
         $facilities = \App\Models\Facility::with('buildings')
             ->orderBy('building_id')
+            ->orderBy('name')
             ->get();
 
         $equipments = \App\Models\Equipment::orderBy('name')

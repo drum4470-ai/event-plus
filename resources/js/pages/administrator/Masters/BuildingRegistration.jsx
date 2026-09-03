@@ -4,6 +4,7 @@ import CommonModal from '@/Components/CommonModal';
 import { calculateSimilarity } from "@/Utils/levenshtein";
 
 export default function BuildingRegistration({ existingNames = [], onUpdate = () => {} }) {
+    console.log(existingNames);
     // フォーム入力などの「その場限りの状態」のみを管理
     const [formData, setFormData] = useState({ name: '', address: '' });
     const [editData, setEditData] = useState({ name: '', address: '' });
