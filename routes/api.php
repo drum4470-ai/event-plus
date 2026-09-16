@@ -21,9 +21,11 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\ResetPasswordController;
 use App\Http\Controllers\User\ForgotPasswordController;
 
+use App\Http\Controllers\User\ApplicationController;
+
 Route::post('/administrator/login', [AdminAuthController::class, 'login']);
 Route::post('/user/login', [UserAuthController::class, 'login']);
-Route::post('/user-registration', [UserController::class, 'store']);
+// Route::post('/user-registration', [UserController::class, 'store']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
 Route::post('/reset-password', [ResetPasswordController::class,'resetpassword']);
 
@@ -48,4 +50,8 @@ Route::middleware('auth:admin')->prefix('administrator')->group(function () {
     Route::middleware('auth:user')->prefix('user')->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
         Route::get('/dashboard', [UserDashboardController::class, 'index']);
-});
+        Route::apiResource('/edit', UserController::class);
+        Route::get('/applications/relations', [RelationManagementController::class, 'index']);
+        Route::apiResource('/applications', ApplicationController::class);
+        Route::apiResource('/applications/search', ApplicationController::class);
+    });

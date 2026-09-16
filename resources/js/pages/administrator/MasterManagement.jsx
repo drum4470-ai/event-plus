@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import BuildingRegistration from './Masters/BuildingRegistration';
 import FacilityRegistration from './Masters/FacilityRegistration';
 import PurposeRegistration from './Masters/PurposeRegistration';

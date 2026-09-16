@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api,{csrfApi} from '@/api'; // パスはプロジェクトに合わせて調整してください
+import api, { csrfApi } from '@/api'; // パスはプロジェクトに合わせて調整してください
 
-export default function UserRegistration() {
+export default function UserEdit() {
     const navigate = useNavigate();
     const [message, setMessage] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: '',
+        password: '', // 変更時のみ入力（空なら変更しない）
         telephone: '',
         address: '',
         company: '',
@@ -29,7 +29,6 @@ export default function UserRegistration() {
             max: 'メールアドレスは320文字以内で入力してください。',
         },
         password: {
-            required: 'パスワードを入力してください。',
             min: 'パスワードは8文字以上で入力してください。',
             max: 'パスワードは4096文字以内で入力してください。',
         },
@@ -46,6 +45,32 @@ export default function UserRegistration() {
         },
     };
 
+    // ★ 1. ページ読み込み時にログイン中ユーザーの情報を取得する
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                await csrfApi.get('/sanctum/csrf-cookie');
+                
+                const response = await csrfApi.get('/user/registration'); // ユーザー情報取得用のエンドポイントに変更
+                
+                const user = response.data;
+                setFormData({
+                    name: user.name ?? '',
+                    email: user.email ?? '',
+                    password: '', // パスワードはセキュリティ上空欄にする
+                    telephone: user.telephone ?? '',
+                    address: user.address ?? '',
+                    company: user.company ?? '',
+                });
+            } catch (error) {
+                console.error('ユーザー情報の取得に失敗しました:', error);
+                setError('ユーザー情報の取得に失敗しました。');
+            }
+        };
+
+        fetchUser();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -60,18 +85,29 @@ export default function UserRegistration() {
         setError('');
         setMessage('');
 
+        // パスワードが空の場合、バックエンドに送らない（またはそのまま送るか）の処理
+        // バックエンドが「空ならパスワードを変更しない」設計になっている前提です
+        const submitData = { ...formData };
+        if (!submitData.password) {
+            delete submitData.password;
+        }
+
         try {
-            // 一般ユーザー用の登録エンドポイントにPOST
-            await csrfApi.post('/user-registration', formData);
+            await csrfApi.get('/sanctum/csrf-cookie');
+            
+            // ★ 2. 更新用のエンドポイントにPUTまたはPOST（バックエンドのルート設計に合わせる）
+            // PUT /user/profile や PUT /user など
+            await csrfApi.put('/user/registration', submitData);
 
-            setMessage('利用者登録が完了しました。10秒後にログイン画面に戻ります。');
+            setMessage('プロフィールを更新しました。');
 
+            // 必要に応じて数秒後にダッシュボードへ戻すなど
             setTimeout(() => {
-                navigate('/login');
-            }, 10000);
+                navigate('/dashboard');
+            }, 2000);
 
         } catch (error) {
-            console.error('ユーザー登録エラー:', error);
+            console.error('プロフィール更新エラー:', error);
 
             if (error.response?.data?.errors) {
                 const errors = error.response.data.errors;
@@ -91,7 +127,7 @@ export default function UserRegistration() {
             } else {
                 setError(
                     error.response?.data?.message ||
-                    'ユーザー登録に失敗しました。'
+                    'プロフィールの更新に失敗しました。'
                 );
             }
         } finally {
@@ -101,7 +137,7 @@ export default function UserRegistration() {
 
     return (
         <div className="mx-auto max-w-md rounded-lg border bg-white p-6 shadow">
-            <h2 className="mb-6 text-xl font-bold text-center">新規ユーザー登録</h2>
+            <h2 className="mb-6 text-xl font-bold text-center">プロフィール編集</h2>
             {message && <div className="mb-4 rounded bg-green-100 p-3 text-green-700">{message}</div>}
 
             {error && (
@@ -131,6 +167,7 @@ export default function UserRegistration() {
                         type="email"
                         name="email"
                         value={formData.email}
+                        autoComplete="username"
                         onChange={handleChange}
                         className="w-full rounded border p-2"
                         required
@@ -139,14 +176,15 @@ export default function UserRegistration() {
 
                 {/* パスワード */}
                 <div className="mb-4">
-                    <label className="mb-1 block font-medium">パスワード</label>
+                    <label className="mb-1 block font-medium">パスワード（変更する場合のみ入力）</label>
                     <input
                         type="password"
                         name="password"
                         value={formData.password}
+                        autoComplete="new-password"
                         onChange={handleChange}
                         className="w-full rounded border p-2"
-                        required
+                        placeholder="変更しない場合は空欄"
                     />
                 </div>
 
@@ -188,13 +226,13 @@ export default function UserRegistration() {
                     />
                 </div>
 
-                {/* 登録ボタン */}
+                {/* 更新ボタン */}
                 <button
                     type="submit"
                     disabled={loading}
                     className="w-full rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
                 >
-                    {loading ? '登録中...' : '登録する'}
+                    {loading ? '更新中...' : '更新する'}
                 </button>
             </form>
         </div>

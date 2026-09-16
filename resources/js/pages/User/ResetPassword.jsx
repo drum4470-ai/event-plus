@@ -69,6 +69,7 @@ export default function ResetPassword() {
                 <h1 className="text-2xl font-bold mb-6 text-center">
                     パスワード再設定
                 </h1>
+                {message && <div className="mb-4 rounded bg-green-100 p-3 text-green-700">{message}</div>}
 
                 <form onSubmit={submit} className="space-y-6">
 

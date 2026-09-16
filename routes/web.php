@@ -14,7 +14,7 @@ Route::get('/login', function () {
     return view('app');
 });
 
-Route::post('/user-registration', [UserController::class, 'store']);
+Route::post('/user/registration', [UserController::class, 'store']);
 
 Route::get('/reset-password/{token}', function ($token) {
     return view('app');

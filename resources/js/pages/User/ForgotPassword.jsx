@@ -18,7 +18,7 @@ export default function ForgotPassword() {
 
         try {
             // 先ほど設定したAPIエンドポイントへPOST
-            const response = await api.post('/forgot-password', { name, email });
+            await api.post('/forgot-password', { name, email });
             setMessage('パスワード再設定用のメールを送信しました。10秒後にログイン画面に戻ります。');
 
             setTimeout(() => {

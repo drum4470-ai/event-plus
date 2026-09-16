@@ -43,7 +43,7 @@ export default function EquipmentRegistration({ existingNames = [], onUpdate = (
     const handleConfirmRegister = async () => {
         setProcessing(true);
         try {
-            const response = await api.post('/administrator/equipment', formData);
+            const response = await api.post('/administrator/equipments', formData);
             onUpdate();
             setEquipments([...equipments, response.data]);
             setConfirmModal(false);
@@ -59,7 +59,7 @@ export default function EquipmentRegistration({ existingNames = [], onUpdate = (
     const handleConfirmEdit = async () => {
         setProcessing(true);
         try {
-            const response = await api.put(`/administrator/equipment/${editingItem.equipment_id}`, editData);
+            const response = await api.put(`/administrator/equipments/${editingItem.equipment_id}`, editData);
             onUpdate();
             setEquipments(equipments.map(b => b.equipment_id === editingItem.equipment_id ? response.data : b));
             setEditModal(false);
@@ -75,7 +75,7 @@ export default function EquipmentRegistration({ existingNames = [], onUpdate = (
         if (!editingItem || !editingItem.equipment_id) return;
         setProcessing(true);
         try {
-            await api.delete(`/administrator/equipment/${editingItem.equipment_id}`);
+            await api.delete(`/administrator/equipments/${editingItem.equipment_id}`);
             onUpdate();
             setEquipments(equipments.filter(b => b.equipment_id !== editingItem.equipment_id));
             setDeleteSecondConfirm(false);

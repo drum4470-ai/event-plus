@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Building;
 use App\Models\Facility;
 use App\Models\Purpose;
 use App\Models\Equipment;
@@ -35,6 +36,7 @@ class RelationManagementController extends Controller
 
         // indexメソッドの中に正しくレスポンスを配置する
         return response()->json([
+            'buildings' => Building::all(),
             'facilities' => $facilities,
             'purposes' => Purpose::all(),
             'equipments' => Equipment::all(),

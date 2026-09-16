@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import FacilityPurposeRelation from './Relations/FacilityPurposeRelation';
 import FacilityPurposeEquipmentRelation from './Relations/FacilityPurposeEquipmentRelation';

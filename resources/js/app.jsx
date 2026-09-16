@@ -22,8 +22,11 @@ import AccountManagement from './Pages/Administrator/AccountManagement';
 import UserLogin from './Pages/User/UserLogin';
 import UserDashboard from './Pages/User/UserDashboard';
 import UserRegistration from './Pages/User/UserRegistration';
+import UserEdit from './Pages/User/UserEdit';
 import ForgotPassword from './Pages/User/ForgotPassword';
 import ResetPassword from '@/Pages/User/ResetPassword';
+import ApplicationRegistration from './Pages/User/ApplicationRegistration';
+import ApplicationSearch from './Pages/User/ApplicationSearch';
 
 
 
@@ -49,10 +52,13 @@ const App = () => (
             {/* ユーザー */}
             <Route path="/login" element={<UserLogin />} />
             <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/user-registration" element={<UserRegistration />} />
+            <Route path="/registration" element={<UserRegistration />} />
+            <Route path="/edit" element={<UserEdit />} />
             {/* <Route path="/password-reset" element={<PasswordReset />} /> */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/applications" element={<ApplicationRegistration />} />
+            <Route path="/applications/search" element={<ApplicationSearch />} />
 
         </Routes>
     </BrowserRouter>
@@ -63,11 +69,8 @@ if (!window.root) {
     window.root = ReactDOM.createRoot(container);
 }
 
-// 2. 既存のルートを使ってレンダリングする
-// console.log("レンダリング開始直前");
 window.root.render(
     <React.StrictMode>
         <App />
     </React.StrictMode>
 );
-// console.log("レンダリング実行完了");

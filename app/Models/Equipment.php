@@ -27,8 +27,14 @@ class Equipment extends Model
     
     public function applications(): BelongsToMany
     {
-      
-        return $this->belongsToMany(Application::class);
+        return $this->belongsToMany(
+            Application::class,
+            'application_equipments',
+            'equipment_id',
+            'application_id',
+            'equipment_id',
+            'application_id'
+        );
     }
 
     public function facilityPurposeEquipments(): HasMany

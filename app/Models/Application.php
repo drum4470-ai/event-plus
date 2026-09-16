@@ -19,6 +19,7 @@ class Application extends Model
 
     protected $fillable = [
         'user_id',
+
         'facility_id',
         'facility_slot_id',
         'purpose_id',
@@ -32,13 +33,16 @@ class Application extends Model
 
     protected $casts = [
         'usage_date' => 'date',
-        'status' => 'integer',
     ];
 
 
     public function users(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(
+        User::class,
+        'user_id',
+        'user_id'
+    );
     }
 
 
@@ -71,10 +75,26 @@ class Application extends Model
         );
     }
 
+    public function equipments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Equipment::class,
+            'application_equipments',
+            'application_id',
+            'equipment_id',
+            'application_id',
+            'equipment_id'
+        );
+    }
+
 
     public function applicationComments(): HasMany
     {
-        return $this->hasMany(ApplicationComment::class);
+        return $this->hasMany(
+        ApplicationComment::class,
+        'application_id',
+        'application_id'
+        );
     }
 }
 
