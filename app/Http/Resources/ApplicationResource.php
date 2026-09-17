@@ -17,7 +17,6 @@ class ApplicationResource extends JsonResource
         return [
             'application_id' => $this->application_id,
             'user_id' => $this->user_id,
-            'building_id' => $this->building_id,
             'facility_id' => $this->facility_id,
             'facility_slot_id' => $this->facility_slot_id,
             'purpose_id' => $this->purpose_id,
@@ -26,8 +25,12 @@ class ApplicationResource extends JsonResource
             'address' => $this->address,
             'telephone' => $this->telephone,
             'status' => $this->status,
-            'created_at' => $this->created_at ? $this->created_at->format('Y-m-d H:i') : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->format('Y-m-d H:i') : null,
+            'created_at' => $this->created_at
+                ? $this->created_at->format('Y-m-d H:i')
+                : null,
+            'updated_at' => $this->updated_at
+                ? $this->updated_at->format('Y-m-d H:i')
+                : null,
         ];
     }
 }

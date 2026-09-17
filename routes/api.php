@@ -54,4 +54,5 @@ Route::middleware('auth:admin')->prefix('administrator')->group(function () {
         Route::get('/applications/relations', [RelationManagementController::class, 'index']);
         Route::apiResource('/applications', ApplicationController::class);
         Route::apiResource('/applications/search', ApplicationController::class);
+        
     });

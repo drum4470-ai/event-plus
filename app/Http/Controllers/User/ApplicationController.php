@@ -10,16 +10,14 @@ use App\Http\Resources\ApplicationResource;
 
 class ApplicationController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user = $request->user();
+   public function index(Request $request)
+{
+    $user = $request->user();
 
-        $application = $user->applications()
-            ->with(['buildings', 'facilities', 'purposes', 'equipments', 'slots', 'applicationComments'])
-            ->get();
+    $applications = $user->applications()->get();
 
-        return ApplicationResource::collection($application);
-    }
+    return ApplicationResource::collection($applications);
+}
 
     public function store(Request $request)
     {
@@ -35,7 +33,7 @@ class ApplicationController extends Controller
             $app = Application::create([
                 'user_id' => $request->user()->user_id,
                 'facility_id' => $request->facility_id,
-                'facility_slot_id' => $request->facility_slot_id,
+                'slot_id' => $request->slot_id,
                 'purpose_id' => $request->purpose_id,
                 'event_name' => $request->event_name,
                 'usage_date' => $request->usage_date,
@@ -76,7 +74,7 @@ class ApplicationController extends Controller
 
             $application->update([
                 'facility_id' => $request->facility_id,
-                'facility_slot_id' => $request->facility_slot_id,
+                'slot_id' => $request->slot_id,
                 'purpose_id' => $request->purpose_id,
                 'event_name' => $request->event_name,
                 'usage_date' => $request->usage_date,
