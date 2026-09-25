@@ -22,12 +22,18 @@ class ApplicationResource extends JsonResource
             'facility_slot_id' => $this->facility_slot_id,
             'purpose_id' => $this->purpose_id,
             'event_name' => $this->event_name,
-            'usage_date' => $this->usage_date,
+            'usage_date' => $this->usage_date ? $this->usage_date->format('Y年m月d日') : null,
             'address' => $this->address,
             'telephone' => $this->telephone,
             'status' => $this->status,
-            'created_at' => $this->created_at ? $this->created_at->format('Y-m-d H:i') : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->format('Y-m-d H:i') : null,
+
+            'facilities' => $this->whenLoaded('facilities'),
+            'purposes' => $this->whenLoaded('purposes'),
+            'facility_slots' => $this->whenLoaded('facilitySlots'),
+            // 'equipments' => $this->whenLoaded('equipments'),
+            // 'application_comments' => $this->whenLoaded('applicationComments'),
+            'created_at' => $this->created_at ? $this->created_at->format('Y-m-d') : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->format('Y-m-d') : null,
         ];
     }
 }

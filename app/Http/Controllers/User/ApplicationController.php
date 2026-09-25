@@ -11,15 +11,36 @@ use App\Http\Resources\ApplicationResource;
 class ApplicationController extends Controller
 {
     public function index(Request $request)
+{
+    $user = $request->user();
+
+    // with() を使って関連するデータを一緒に取得する
+    $application = $user->applications()
+        ->with(['facilities.buildings', 
+                'purposes', 
+                'facilitySlots.slots', 
+                // 'equipments', indexの軽量化
+                // 'applicationComments'
+                ])
+        ->get();
+
+    return ApplicationResource::collection($application);
+}
+
+    public function show($id): JsonResponse
     {
-        $user = $request->user();
-
-        $application = $user->applications()
-            ->with(['buildings', 'facilities', 'purposes', 'equipments', 'slots', 'applicationComments'])
-            ->get();
-
-        return ApplicationResource::collection($application);
-    }
+        // N+1問題を防ぐために with() で関連モデルを一括取得
+        $application = Application::with([
+            'building',            // 建物
+            'facility',          // 施設
+            'purpose',           // 目的
+            'slot',              // スロット
+            'user',              // 申請者
+            'staff',             // 担当者
+            'manager',           // 管理者
+            'equipments',        // 紐づく備品
+            'applicationComments' // コメント一覧
+        ])->findOrFail($id);
 
     public function store(Request $request)
     {

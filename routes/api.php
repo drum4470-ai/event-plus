@@ -52,6 +52,7 @@ Route::middleware('auth:admin')->prefix('administrator')->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index']);
         Route::apiResource('/edit', UserController::class);
         Route::get('/applications/relations', [RelationManagementController::class, 'index']);
+        Route::get('/applications/{id}', [ApplicationController::class, 'show']);
         Route::apiResource('/applications', ApplicationController::class);
         Route::apiResource('/applications/search', ApplicationController::class);
     });
