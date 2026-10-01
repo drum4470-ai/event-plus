@@ -20,7 +20,7 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)
-            ->whereIn('role', ['user', 'staff', 'manager', 'administrator']) // 管理者も含める場合は 'administrator' を追加
+            ->whereIn('role', ['user', 'staff', 'manager', 'administrator']) 
             ->first();
 
         if (!$user) {

@@ -23,11 +23,14 @@ class DashboardController extends Controller
 
         // 各ステータスの件数を取り出す（存在しない場合は0件）
         $summary = [
-            'new' => $statusCounts->get('新規', 0),
-            'tanto_check' => $statusCounts->get('担当確認', 0),
-            'shana_check' => $statusCounts->get('社内確認', 0),
-            'approved' => $statusCounts->get('申請許可', 0),
-            'total' => $user->applications()->count(), // 総申請数
+            'new'         => $statusCounts->get('新規申請', 0),
+            'revision'    => $statusCounts->get('要修正', 0),
+            'staff_check' => $statusCounts->get('担当確認', 0),
+            'internal_check' => $statusCounts->get('社内確認', 0),
+            'processing'  => $statusCounts->get('申請手続き', 0),
+            'submitted'   => $statusCounts->get('申請済み', 0),
+            'history'     => $statusCounts->get('過去の申請', 0),
+            'total'       => $user->applications()->count(),
         ];
 
         $data = [

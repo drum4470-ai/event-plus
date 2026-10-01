@@ -50,9 +50,18 @@ Route::middleware('auth:admin')->prefix('administrator')->group(function () {
     Route::middleware('auth:user')->prefix('user')->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
         Route::get('/dashboard', [UserDashboardController::class, 'index']);
+        Route::get('/profile', [UserController::class, 'show']);
         Route::apiResource('/edit', UserController::class);
         Route::get('/applications/relations', [RelationManagementController::class, 'index']);
         Route::get('/applications/{id}', [ApplicationController::class, 'show']);
         Route::apiResource('/applications', ApplicationController::class);
         Route::apiResource('/applications/search', ApplicationController::class);
     });
+
+    use App\Models\Application;
+
+
+Route::get('/fix-status-temp', function () {
+    Application::query()->update(['status' => '新規申請']);
+    return response()->json(['message' => 'すべての申請のステータスを「新規申請」に更新しました！']);
+});

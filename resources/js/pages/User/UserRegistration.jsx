@@ -1,54 +1,54 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api,{csrfApi} from '@/api'; // パスはプロジェクトに合わせて調整してください
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api, { csrfApi } from "@/api"; // パスはプロジェクトに合わせて調整してください
 
 export default function UserRegistration() {
     const navigate = useNavigate();
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        telephone: '',
-        address: '',
-        company: '',
+        name: "",
+        email: "",
+        password: "",
+        telephone: "",
+        address: "",
+        company: "",
     });
 
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
 
     const errorMessages = {
         name: {
-            required: '名前を入力してください。',
-            max: '名前は255文字以内で入力してください。',
+            required: "名前を入力してください。",
+            max: "名前は255文字以内で入力してください。",
         },
         email: {
-            required: 'メールアドレスを入力してください。',
-            email: '正しいメールアドレスを入力してください。',
-            unique: 'このメールアドレスはすでに登録されています。',
-            max: 'メールアドレスは320文字以内で入力してください。',
+            required: "メールアドレスを入力してください。",
+            email: "正しいメールアドレスを入力してください。",
+            unique: "このメールアドレスはすでに登録されています。",
+            max: "メールアドレスは320文字以内で入力してください。",
         },
         password: {
-            required: 'パスワードを入力してください。',
-            min: 'パスワードは8文字以上で入力してください。',
-            max: 'パスワードは4096文字以内で入力してください。',
+            required: "パスワードを入力してください。",
+            min: "パスワードは8文字以上で入力してください。",
+            max: "パスワードは4096文字以内で入力してください。",
         },
         telephone: {
-            required: '電話番号を入力してください。',
-            max: '電話番号は20文字以内で入力してください。',
+            required: "電話番号を入力してください。",
+            max: "電話番号は20文字以内で入力してください。",
         },
         address: {
-            required: '住所を入力してください。',
-            max: '住所は255文字以内で入力してください。',
+            required: "住所を入力してください。",
+            max: "住所は255文字以内で入力してください。",
         },
         company: {
-            max: '会社名は255文字以内で入力してください。',
+            max: "会社名は255文字以内で入力してください。",
         },
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
@@ -57,21 +57,22 @@ export default function UserRegistration() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
-        setMessage('');
+        setError("");
+        setMessage("");
 
         try {
             // 一般ユーザー用の登録エンドポイントにPOST
-            await csrfApi.post('/user-registration', formData);
+            await csrfApi.post("/user/user-registration", formData);
 
-            setMessage('利用者登録が完了しました。10秒後にログイン画面に戻ります。');
+            setMessage(
+                "利用者登録が完了しました。10秒後にログイン画面に戻ります。",
+            );
 
             setTimeout(() => {
-                navigate('/login');
+                navigate("/login");
             }, 10000);
-
         } catch (error) {
-            console.error('ユーザー登録エラー:', error);
+            console.error("ユーザー登録エラー:", error);
 
             if (error.response?.data?.errors) {
                 const errors = error.response.data.errors;
@@ -79,19 +80,19 @@ export default function UserRegistration() {
 
                 Object.entries(errors).forEach(([field, fieldErrors]) => {
                     fieldErrors.forEach((message) => {
-                        const rule = message.split('.').pop();
+                        const rule = message.split(".").pop();
                         const convertedMessage =
                             errorMessages[field]?.[rule] ||
-                            '入力内容を確認してください。';
+                            "入力内容を確認してください。";
                         messages.push(convertedMessage);
                     });
                 });
 
-                setError(messages.join('\n'));
+                setError(messages.join("\n"));
             } else {
                 setError(
                     error.response?.data?.message ||
-                    'ユーザー登録に失敗しました。'
+                        "ユーザー登録に失敗しました。",
                 );
             }
         } finally {
@@ -101,8 +102,14 @@ export default function UserRegistration() {
 
     return (
         <div className="mx-auto max-w-md rounded-lg border bg-white p-6 shadow">
-            <h2 className="mb-6 text-xl font-bold text-center">新規ユーザー登録</h2>
-            {message && <div className="mb-4 rounded bg-green-100 p-3 text-green-700">{message}</div>}
+            <h2 className="mb-6 text-xl font-bold text-center">
+                新規ユーザー登録
+            </h2>
+            {message && (
+                <div className="mb-4 rounded bg-green-100 p-3 text-green-700">
+                    {message}
+                </div>
+            )}
 
             {error && (
                 <div className="mb-4 whitespace-pre-line rounded bg-red-100 p-3 text-red-700">
@@ -126,7 +133,9 @@ export default function UserRegistration() {
 
                 {/* メールアドレス */}
                 <div className="mb-4">
-                    <label className="mb-1 block font-medium">メールアドレス</label>
+                    <label className="mb-1 block font-medium">
+                        メールアドレス
+                    </label>
                     <input
                         type="email"
                         name="email"
@@ -178,7 +187,9 @@ export default function UserRegistration() {
 
                 {/* 団体名・会社名 */}
                 <div className="mb-6">
-                    <label className="mb-1 block font-medium">団体名（任意）</label>
+                    <label className="mb-1 block font-medium">
+                        団体名（任意）
+                    </label>
                     <input
                         type="text"
                         name="company"
@@ -194,7 +205,7 @@ export default function UserRegistration() {
                     disabled={loading}
                     className="w-full rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
                 >
-                    {loading ? '登録中...' : '登録する'}
+                    {loading ? "登録中..." : "登録する"}
                 </button>
             </form>
         </div>

@@ -13,7 +13,7 @@ export default function ApplicationRegistration() {
     });
 
     const [formData, setFormData] = useState({
-
+        building_id: '', 
         facility_id: '',
         facility_slot_id: '',
         purpose_id: '',
@@ -32,16 +32,29 @@ export default function ApplicationRegistration() {
         const fetchData = async () => {
             try {
                 await csrfApi.get('/sanctum/csrf-cookie');
-                const response = await api.get('/user/applications/relations');
+                
+                // 1. リレーションデータと、ログインユーザーのプロフィール情報を並行取得
+                // （※ルーティングを /user/profile に設定した場合）
+                const [relationsRes, userRes] = await Promise.all([
+                    api.get('/user/applications/relations'),
+                    api.get('/user/profile') 
+                ]);
 
+                const resData = relationsRes.data.data ?? relationsRes.data;
+
+                // 2. マスターデータをセット
                 setData({
-                    buildings: response.data.buildings ?? [],
-                    facilities: response.data.facilities ?? [],
-                    purposes: response.data.purposes ?? [],
-                    equipments: response.data.equipments ?? [],
-                    slots: response.data.slots ?? [],
+                    buildings: resData.buildings ?? [],
+                    facilities: resData.facilities ?? [],
+                    purposes: resData.purposes ?? [],
+                    equipments: resData.equipments ?? [],
+                    slots: resData.slots ?? [],
                 });
-                const loginUser = response.data.user; 
+
+                // 3. ログインユーザーの住所・電話番号をフォームにセット
+                // （AccountResource を通している場合、data プロパティの中に直接入っています）
+                const loginUser = userRes.data.data ?? userRes.data;
+
                 if (loginUser) {
                     setFormData(prev => ({
                         ...prev,
@@ -49,7 +62,7 @@ export default function ApplicationRegistration() {
                         telephone: loginUser.telephone ?? '',
                     }));
                 }
-                console.log('APIから取得したデータ:', response.data);
+
             } catch (error) {
                 console.error('データ取得失敗:', error);
             }
@@ -75,12 +88,13 @@ export default function ApplicationRegistration() {
             setProcessing(false);
         }
     };
-const selectedFacility = Array.isArray(data.facilities)
-    ? data.facilities.find(f => Number(f.facility_id) === Number(formData.facility_id))
-    : (data.facilities?.facility_id == formData.facility_id ? data.facilities : null);
 
-const selectedBuildingName = selectedFacility?.buildings?.name 
-    || data.buildings.find(b => Number(b.building_id) === Number(formData.building_id))?.name;
+    const selectedFacility = Array.isArray(data.facilities)
+        ? data.facilities.find(f => Number(f.facility_id) === Number(formData.facility_id))
+        : (data.facilities?.facility_id == formData.facility_id ? data.facilities : null);
+
+    const selectedBuildingName = selectedFacility?.buildings?.name 
+        || data.buildings.find(b => Number(b.building_id) === Number(formData.building_id))?.name;
     const selectedFacilityName = data.facilities.find(f => String(f.facility_id) === String(formData.facility_id))?.name;
     const selectedPurposeName = data.purposes.find(p => String(p.purpose_id) === String(formData.purpose_id))?.name;
     const selectedSlot = data.slots.find(s => String(s.facility_slot_id ?? s.slot_id) === String(formData.facility_slot_id));
@@ -88,10 +102,12 @@ const selectedBuildingName = selectedFacility?.buildings?.name
     const selectedEquipmentNames = data.equipments
         .filter(eq => formData.equipment_id.includes(eq.equipment_id))
         .map(eq => eq.name);
-// 選択された施設・目的に紐づく設備IDのリストを抽出
+
+    // 選択された施設・目的に紐づく設備IDのリストを抽出
     const selectedFacilityObj = (data.facilities ?? []).find(f => String(f.facility_id) === String(formData.facility_id));
     const matchedPurpose = selectedFacilityObj?.facility_purposes?.find(fp => String(fp.purpose_id) === String(formData.purpose_id));
     const availableEquipmentIds = matchedPurpose?.facility_purpose_equipments?.map(fpe => fpe.equipment_id) ?? [];
+
     return (
         <div className="w-full">
             <h2 className="text-xl font-bold mb-4">
@@ -173,11 +189,9 @@ const selectedBuildingName = selectedFacility?.buildings?.name
                 >
                     <option value="">目的を選択してください</option>
                     {(() => {
-                        // 選択中の施設を取得
                         const currentFacility = (data.facilities ?? []).find(f => String(f.facility_id) === String(formData.facility_id));
                         if (!currentFacility || !currentFacility.facility_purposes) return null;
 
-                        // facility_purposes に紐づく目的マスタ（purposes）を展開してオプションを生成
                         return currentFacility.facility_purposes.map((fp) => {
                             const purpose = fp.purposes;
                             if (!purpose) return null;
@@ -190,8 +204,6 @@ const selectedBuildingName = selectedFacility?.buildings?.name
                     })()}
                 </select>
             </div>
-
-            
 
             {/* 5. 設備 */}
             <div className="mb-4">
@@ -228,7 +240,6 @@ const selectedBuildingName = selectedFacility?.buildings?.name
                 </div>
             </div>
 
-
             {/* 4. 時間枠 */}
             <div className="mb-4">
                 <label className="block font-bold mb-2">時間枠</label>
@@ -245,11 +256,9 @@ const selectedBuildingName = selectedFacility?.buildings?.name
                 >
                     <option value="">時間枠を選択してください</option>
                     {(() => {
-                        // 選択中の施設を取得
                         const currentFacility = (data.facilities ?? []).find(f => String(f.facility_id) === String(formData.facility_id));
                         if (!currentFacility || !currentFacility.facility_slots) return null;
 
-                        // facility_slots に紐づくスロットマスタ（slots）を展開してオプションを生成
                         return currentFacility.facility_slots.map((fs) => {
                             const slot = fs.slots;
                             if (!slot) return null;
@@ -382,8 +391,8 @@ const selectedBuildingName = selectedFacility?.buildings?.name
                             type="button"
                             onClick={() => {
                                 setSuccessModal(false);
-                                 setTimeout(() => {
-                                    navigate('/dashboard'); // リダイレクト先はここで指定
+                                setTimeout(() => {
+                                    navigate('/dashboard');
                                 }, 1000);
                             }}
                             className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"

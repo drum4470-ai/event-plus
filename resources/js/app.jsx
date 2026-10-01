@@ -52,7 +52,7 @@ const App = () => (
             {/* ユーザー */}
             <Route path="/login" element={<UserLogin />} />
             <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/registration" element={<UserRegistration />} />
+            <Route path="/user-registration" element={<UserRegistration />} />
             <Route path="/edit" element={<UserEdit />} />
             {/* <Route path="/password-reset" element={<PasswordReset />} /> */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
