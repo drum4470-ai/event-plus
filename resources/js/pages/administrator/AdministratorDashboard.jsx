@@ -1,42 +1,70 @@
-import React, { useEffect, useState } from 'react';
-// import api from '@/api';
-import AdminLayout from '@/Layouts/AdminLayout';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
+import BasicLayout from "@/Layouts/BasicLayout";
+import api, { csrfApi } from "@/api";
 
 export default function AdministratorDashboard() {
+    const navigate = useNavigate();
 
+    const handleLogout = async () => {
+        try {
+            await csrfApi.get("/sanctum/csrf-cookie");
+            await api.post("/administrator/logout");
+            navigate("/administrator/login");
+        } catch (error) {
+            console.error("ログアウト失敗:", error);
+        }
+    };
 
-   return (
-        <div className="min-h-screen bg-gray-100 p-4 pb-12">
-            {/* <Head /> の代わりに標準的な方法でタイトルを設定 */}
-            <header className="py-6 mb-4">
-                <h1 className="text-xl font-bold text-center text-gray-800">A2 ダッシュボード</h1>
-            </header>
-
-            <div className="max-w-md mx-auto space-y-6">
-                
-                <section className="space-y-3">
-                    <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">管理者メニュー</h2>
-                    <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
-                        {/* react-router-dom の Link を使用 */}
-                        <Link to="/administrator/account" className="flex items-center p-4 hover:bg-gray-50">
-                            <span className="flex-1 font-medium">アカウント管理</span>
+    return (
+        <BasicLayout>
+            <div className="max-w-md mx-auto px-4 py-4 space-y-4">
+                <section className="space-y-2">
+                    <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-1">
+                        管理者メニュー
+                    </h2>
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 divide-y divide-gray-100">
+                        <Link
+                            to="/administrator/account"
+                            className="flex items-center p-3.5 hover:bg-gray-50 transition"
+                        >
+                            <span className="flex-1 font-medium text-gray-700">
+                                アカウント管理
+                            </span>
                             <span className="text-gray-400">＞</span>
                         </Link>
-                        <Link to="/administrator/relation" className="flex items-center p-4 hover:bg-gray-50">
-                            <span className="flex-1 font-medium">リレーション管理</span>
+                        <Link
+                            to="/administrator/relation"
+                            className="flex items-center p-3.5 hover:bg-gray-50 transition"
+                        >
+                            <span className="flex-1 font-medium text-gray-700">
+                                リレーション管理
+                            </span>
                             <span className="text-gray-400">＞</span>
                         </Link>
-                        <Link to="/administrator/master" className="flex items-center p-4 hover:bg-gray-50">
-                            <span className="flex-1 font-medium">マスタ管理</span>
+                        <Link
+                            to="/administrator/master"
+                            className="flex items-center p-3.5 hover:bg-gray-50 transition"
+                        >
+                            <span className="flex-1 font-medium text-gray-700">
+                                マスタ管理
+                            </span>
                             <span className="text-gray-400">＞</span>
                         </Link>
                     </div>
                 </section>
 
-                {/* 他のセクションも同様に Link to="..." に変更 */}
-
+                {/* ログアウトセクション */}
+                <section className="pt-2">
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center justify-center p-3.5 text-red-600 font-medium hover:bg-red-50 transition"
+                        >
+                            ログアウト
+                        </button>
+                    </div>
+                </section>
             </div>
-        </div>
+        </BasicLayout>
     );
 }
