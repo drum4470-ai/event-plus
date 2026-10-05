@@ -34,7 +34,7 @@ Route::middleware('auth:admin')->prefix('administrator')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index']);
     Route::get('/master', [MasterManagementController::class, 'index']);
     Route::get('/relation', [RelationManagementController::class, 'index']);
-    Route::patch('/accounts/{user}/password', [AccountController::class, 'updatePassword']);    
+    Route::patch('/account/{user}/password', [AccountController::class, 'updatePassword']);    
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('equipments', EquipmentController::class);
@@ -43,7 +43,7 @@ Route::middleware('auth:admin')->prefix('administrator')->group(function () {
     Route::apiResource('facility-purpose-equipments', FacilityPurposeEquipmentController::class);
     Route::apiResource('facility-purposes', FacilityPurposeController::class);
     Route::apiResource('facility-slots', FacilitySlotController::class);
-    Route::apiResource('accounts', AccountController::class);
+    Route::apiResource('account', AccountController::class);
     
     });
     

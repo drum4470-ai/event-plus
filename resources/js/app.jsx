@@ -1,53 +1,85 @@
-import './bootstrap';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate  } from 'react-router-dom';
-
+import "./bootstrap";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // 管理者
-import AdministratorLogin from './Pages/Administrator/AdministratorLogin';
-import AdministratorDashboard from './Pages/Administrator/AdministratorDashboard';
-import MasterManagement from './Pages/Administrator/MasterManagement';
-import FacilityRegistration from './Pages/Administrator/Masters/FacilityRegistration';
-import BuildingRegistration from './Pages/Administrator/Masters/BuildingRegistration';
-import PurposeRegistration from './Pages/Administrator/Masters/PurposeRegistration';
-import EquipmentRegistration from './Pages/Administrator/Masters/EquipmentRegistration';
-import SlotRegistration from './Pages/Administrator/Masters/SlotRegistration';
-import RelationManagement from './Pages/Administrator/RelationManagement';
-import FacilityPurposeEquipmentRelation from './Pages/Administrator/Relations/FacilityPurposeEquipmentRelation';
-import FacilityPurposeRelation from './Pages/Administrator/Relations/FacilityPurposeRelation';
-import FacilitySlotRelation from './Pages/Administrator/Relations/FacilitySlotRelation';
-import AccountManagement from './Pages/Administrator/AccountManagement';
-// ユーザー
-import UserLogin from './Pages/User/UserLogin';
-import UserDashboard from './Pages/User/UserDashboard';
-import UserRegistration from './Pages/User/UserRegistration';
-import UserEdit from './Pages/User/UserEdit';
-import ForgotPassword from './Pages/User/ForgotPassword';
-import ResetPassword from '@/Pages/User/ResetPassword';
-import ApplicationRegistration from './Pages/User/ApplicationRegistration';
-import ApplicationSearch from './Pages/User/ApplicationSearch';
+import AdministratorLogin from "./Pages/Administrator/AdministratorLogin";
+import AdministratorDashboard from "./Pages/Administrator/AdministratorDashboard";
+import MasterManagement from "./Pages/Administrator/MasterManagement";
+import FacilityRegistration from "./Pages/Administrator/Masters/FacilityRegistration";
+import BuildingRegistration from "./Pages/Administrator/Masters/BuildingRegistration";
+import PurposeRegistration from "./Pages/Administrator/Masters/PurposeRegistration";
+import EquipmentRegistration from "./Pages/Administrator/Masters/EquipmentRegistration";
+import SlotRegistration from "./Pages/Administrator/Masters/SlotRegistration";
+import RelationManagement from "./Pages/Administrator/RelationManagement";
+import FacilityPurposeEquipmentRelation from "./Pages/Administrator/Relations/FacilityPurposeEquipmentRelation";
+import FacilityPurposeRelation from "./Pages/Administrator/Relations/FacilityPurposeRelation";
+import FacilitySlotRelation from "./Pages/Administrator/Relations/FacilitySlotRelation";
+import AccountManagement from "./Pages/Administrator/AccountManagement";
 
-
+import UserLogin from "./Pages/User/UserLogin";
+import UserDashboard from "./Pages/User/UserDashboard";
+import UserRegistration from "./Pages/User/UserRegistration";
+import UserEdit from "./Pages/User/UserEdit";
+import ForgotPassword from "./Pages/User/ForgotPassword";
+import ResetPassword from "@/Pages/User/ResetPassword";
+import ApplicationRegistration from "./Pages/User/ApplicationRegistration";
 
 const App = () => (
     <BrowserRouter>
-        <Routes>            
-            <Route path="/administrator/login" element={<AdministratorLogin />} />
-            <Route path="/administrator/dashboard" element={<AdministratorDashboard />} />
+        <Routes>
+            <Route
+                path="/administrator/login"
+                element={<AdministratorLogin />}
+            />
+            <Route
+                path="/administrator/dashboard"
+                element={<AdministratorDashboard />}
+            />
             <Route path="/administrator/master" element={<MasterManagement />}>
-                <Route path="facility-registration" element={<FacilityRegistration />} />
-                <Route path="building-registration" element={<BuildingRegistration />} />
-                <Route path="equipment-registration" element={<EquipmentRegistration />} />
-                <Route path="purpose-registration" element={<PurposeRegistration />} />
-                <Route path="slot-registration" element={<SlotRegistration />} />
+                <Route
+                    path="facility-registration"
+                    element={<FacilityRegistration />}
+                />
+                <Route
+                    path="building-registration"
+                    element={<BuildingRegistration />}
+                />
+                <Route
+                    path="equipment-registration"
+                    element={<EquipmentRegistration />}
+                />
+                <Route
+                    path="purpose-registration"
+                    element={<PurposeRegistration />}
+                />
+                <Route
+                    path="slot-registration"
+                    element={<SlotRegistration />}
+                />
             </Route>
-            <Route path="/administrator/relation" element={<RelationManagement />}>
-                <Route path="facilityPurpose-equipment-relation" element={<FacilityPurposeEquipmentRelation />} />
-                <Route path="facility-purpose-relation" element={<FacilityPurposeRelation />} />
-                <Route path="facility-slot-relation" element={<FacilitySlotRelation />} />
+            <Route
+                path="/administrator/relation"
+                element={<RelationManagement />}
+            >
+                <Route
+                    path="facilityPurpose-equipment-relation"
+                    element={<FacilityPurposeEquipmentRelation />}
+                />
+                <Route
+                    path="facility-purpose-relation"
+                    element={<FacilityPurposeRelation />}
+                />
+                <Route
+                    path="facility-slot-relation"
+                    element={<FacilitySlotRelation />}
+                />
             </Route>
-            <Route path="/administrator/account" element={<AccountManagement />} />
+            <Route
+                path="/administrator/account"
+                element={<AccountManagement />}
+            />
 
             {/* ユーザー */}
             <Route path="/login" element={<UserLogin />} />
@@ -58,13 +90,11 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/applications" element={<ApplicationRegistration />} />
-            <Route path="/applications/search" element={<ApplicationSearch />} />
-
         </Routes>
     </BrowserRouter>
 );
 
-const container = document.getElementById('app');
+const container = document.getElementById("app");
 if (!window.root) {
     window.root = ReactDOM.createRoot(container);
 }
@@ -72,5 +102,5 @@ if (!window.root) {
 window.root.render(
     <React.StrictMode>
         <App />
-    </React.StrictMode>
+    </React.StrictMode>,
 );

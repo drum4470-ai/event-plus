@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { csrfApi } from "@/api"; // パスはプロジェクトに合わせて調整してください
+import { csrfApi } from "@/api";
+import BasicLayout from "@/Layouts/BasicLayout";
 
 export default function UserRegistration() {
     const navigate = useNavigate();
@@ -101,113 +102,119 @@ export default function UserRegistration() {
     };
 
     return (
-        <div className="mx-auto max-w-md rounded-lg border bg-white p-6 shadow">
-            <h2 className="mb-6 text-xl font-bold text-center">
-                新規ユーザー登録
-            </h2>
-            {message && (
-                <div className="mb-4 rounded bg-green-100 p-3 text-green-700">
-                    {message}
-                </div>
-            )}
+        <BasicLayout>
+            <div className="mx-auto max-w-md rounded-lg border bg-white p-6 shadow">
+                <h2 className="mb-6 text-xl font-bold text-center">
+                    新規ユーザー登録
+                </h2>
+                {message && (
+                    <div className="mb-4 rounded bg-green-100 p-3 text-green-700">
+                        {message}
+                    </div>
+                )}
 
-            {error && (
-                <div className="mb-4 whitespace-pre-line rounded bg-red-100 p-3 text-red-700">
-                    {error}
-                </div>
-            )}
+                {error && (
+                    <div className="mb-4 whitespace-pre-line rounded bg-red-100 p-3 text-red-700">
+                        {error}
+                    </div>
+                )}
 
-            <form onSubmit={handleSubmit}>
-                {/* 名前 */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">名前</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                <form onSubmit={handleSubmit}>
+                    {/* 名前 */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">名前</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* メールアドレス */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">
-                        メールアドレス
-                    </label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                    {/* メールアドレス */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">
+                            メールアドレス
+                        </label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* パスワード */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">パスワード</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                    {/* パスワード */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">
+                            パスワード
+                        </label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* 電話番号 */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">電話番号</label>
-                    <input
-                        type="text"
-                        name="telephone"
-                        value={formData.telephone}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                    {/* 電話番号 */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">
+                            電話番号
+                        </label>
+                        <input
+                            type="text"
+                            name="telephone"
+                            value={formData.telephone}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* 住所 */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">住所</label>
-                    <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                    {/* 住所 */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">住所</label>
+                        <input
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* 団体名・会社名 */}
-                <div className="mb-6">
-                    <label className="mb-1 block font-medium">
-                        団体名（任意）
-                    </label>
-                    <input
-                        type="text"
-                        name="company"
-                        value={formData.company}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                    />
-                </div>
+                    {/* 団体名・会社名 */}
+                    <div className="mb-6">
+                        <label className="mb-1 block font-medium">
+                            団体名（任意）
+                        </label>
+                        <input
+                            type="text"
+                            name="company"
+                            value={formData.company}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                        />
+                    </div>
 
-                {/* 登録ボタン */}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-                >
-                    {loading ? "登録中..." : "登録する"}
-                </button>
-            </form>
-        </div>
+                    {/* 登録ボタン */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        {loading ? "登録中..." : "登録する"}
+                    </button>
+                </form>
+            </div>
+        </BasicLayout>
     );
 }

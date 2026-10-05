@@ -25,8 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         // APIリクエストで認証に失敗した場合は 401 を返す
         $exceptions->render(function (AuthenticationException $e, $request) {
-            if ($request->is('api/*')) {
-                return response()->json(['message' => 'Unauthenticated.'], 401);
+    // Axiosなどの非同期通信（JSONを期待するリクエスト）であれば、一律で401を返す
+            if ($request->expectsJson() || $request->is('administrator/*') || $request->is('user/*')) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
             }
         });
     })->create();

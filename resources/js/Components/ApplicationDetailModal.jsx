@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "@/api";
+import ApplicationStepIndicator from "@/Components//ApplicationStepIndicator";
 
 export default function ApplicationDetailModal({
     isOpen,
@@ -79,10 +80,6 @@ export default function ApplicationDetailModal({
         過去の申請: "過去の申請",
     };
 
-    /*
-     * 現在のステータスとロールから、
-     * 次に変更可能なステータスを決定
-     */
     const getAllowedNextStatuses = (currentStatus, role) => {
         if (role === "user") {
             switch (currentStatus) {
@@ -258,8 +255,7 @@ export default function ApplicationDetailModal({
         typeof currentUser === "string"
             ? currentUser
             : (currentUser?.role ?? "user");
-    console.log("currentUserの中身:", currentUser);
-    console.log("判定されたcurrentRole:", currentRole);
+
     const allowedStatuses = application
         ? getAllowedNextStatuses(application.status ?? "新規申請", currentRole)
         : [];
@@ -290,11 +286,8 @@ export default function ApplicationDetailModal({
 
     const handleUpdate = async (e) => {
         e.preventDefault();
-
         const isStatusChanged = editForm.status !== initialStatus;
-
         const isCommentAdded = editForm.body.trim() !== "";
-
         const isContentChanged =
             editForm.building_id !==
                 String(
@@ -338,37 +331,24 @@ export default function ApplicationDetailModal({
 
         try {
             await api.put(`/user/applications/${applicationId}`, editForm);
-
             alert("更新しました");
-
             setIsEditing(false);
-
             if (typeof onUpdate === "function") {
                 onUpdate();
             }
-
             const res = await api.get(`/user/applications/${applicationId}`);
-
             const updatedAppData = res.data.data ?? res.data;
-
             setApplication(updatedAppData);
 
             const updatedStatus = updatedAppData.status ?? "新規申請";
-
             setInitialStatus(updatedStatus);
-
             setEditForm((prev) => ({
                 ...prev,
-
                 usage_date: formatDateForInput(updatedAppData.usage_date),
-
                 status: updatedStatus,
-
                 body: "",
             }));
         } catch (err) {
-            console.error("更新に失敗しました:", err);
-
             alert("更新に失敗しました。");
         }
     };
@@ -377,13 +357,14 @@ export default function ApplicationDetailModal({
         return null;
     }
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden p-6">
-                <div className="flex justify-between items-center border-b pb-3 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2 sm:p-2">
+            {" "}
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden p-2">
+                <div className="flex justify-between items-center border-b pb-2">
+                    {" "}
                     <h2 className="text-xl font-bold text-gray-800">
                         申請詳細 (ID: {applicationId})
                     </h2>
-
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
@@ -406,37 +387,35 @@ export default function ApplicationDetailModal({
 
                 {!loading && !error && application && (
                     <div>
+                        <ApplicationStepIndicator
+                            currentStatus={application.status}
+                        />
                         <div className="flex justify-between items-center mb-6 bg-gray-50 p-3 rounded-lg">
+                            {" "}
+                            <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                {statusLabels[application.status] ??
+                                    application.status ??
+                                    "新規申請"}
+                            </span>
                             <div>
-                                <span className="text-xs text-gray-500 block">
-                                    ステータス
-                                </span>
+                                {canEdit && !isEditing && (
+                                    <div className="space-x-2">
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition"
+                                        >
+                                            編集・対応
+                                        </button>
 
-                                <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                                    {statusLabels[application.status] ??
-                                        application.status ??
-                                        "新規申請"}
-                                </span>
+                                        <button
+                                            onClick={handleDelete}
+                                            className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition"
+                                        >
+                                            削除
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-
-                            {/* 編集可能なステータスがある場合 */}
-                            {canEdit && !isEditing && (
-                                <div className="space-x-2">
-                                    <button
-                                        onClick={() => setIsEditing(true)}
-                                        className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition"
-                                    >
-                                        編集・対応
-                                    </button>
-
-                                    <button
-                                        onClick={handleDelete}
-                                        className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition"
-                                    >
-                                        削除
-                                    </button>
-                                </div>
-                            )}
                         </div>
 
                         {!isEditing ? (

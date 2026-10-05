@@ -14,9 +14,9 @@ class AccountController extends Controller
      */
     public function index()
     {
-        $accounts = User::orderBy('user_id', 'desc')->get();
+        $account = User::orderBy('user_id', 'desc')->get();
 
-        return AccountResource::collection($accounts);
+        return AccountResource::collection($account);
     }
 
 
