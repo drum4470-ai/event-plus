@@ -4,6 +4,8 @@ import api, { csrfApi } from "@/api";
 import BasicLayout from "@/Layouts/BasicLayout";
 
 export default function ApplicationRegistration() {
+    const [searchParams] = useSearchParams();
+    const isDuplicate = searchParams.get("mode") === "duplicate";
     const navigate = useNavigate();
     const [data, setData] = useState({
         buildings: [],
@@ -30,12 +32,11 @@ export default function ApplicationRegistration() {
     const [processing, setProcessing] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const initForm = async () => {
             try {
                 await csrfApi.get("/sanctum/csrf-cookie");
 
-                // 1. リレーションデータと、ログインユーザーのプロフィール情報を並行取得
-                // （※ルーティングを /user/profile に設定した場合）
+                // 1. リレーションデータとユーザー情報を並行取得
                 const [relationsRes, userRes] = await Promise.all([
                     api.get("/user/applications/relations"),
                     api.get("/user/profile"),
@@ -52,24 +53,47 @@ export default function ApplicationRegistration() {
                     slots: resData.slots ?? [],
                 });
 
-                // 3. ログインユーザーの住所・電話番号をフォームにセット
-                // （AccountResource を通している場合、data プロパティの中に直接入っています）
                 const loginUser = userRes.data.data ?? userRes.data;
 
-                if (loginUser) {
-                    setFormData((prev) => ({
-                        ...prev,
-                        address: loginUser.address ?? "",
-                        telephone: loginUser.telephone ?? "",
-                    }));
+                // 3. 複製モードかどうかを判定
+                const duplicateData = localStorage.getItem(
+                    "duplicateApplicationData",
+                );
+
+                if (duplicateData) {
+                    // 【複製モードの場合】localStorage のデータをベースにする
+                    const parsedData = JSON.parse(duplicateData);
+                    setFormData({
+                        building_id: parsedData.building_id || "",
+                        facility_id: parsedData.facility_id || "",
+                        facility_slot_id: parsedData.facility_slot_id || "",
+                        purpose_id: parsedData.purpose_id || "",
+                        equipment_id: parsedData.equipment_id || [],
+                        event_name: parsedData.event_name || "",
+                        usage_date: parsedData.usage_date || "",
+                        address: parsedData.address || loginUser?.address || "",
+                        telephone:
+                            parsedData.telephone || loginUser?.telephone || "",
+                    });
+                    // 使い終わったら削除
+                    localStorage.removeItem("duplicateApplicationData");
+                } else {
+                    // 【通常の新館作成モードの場合】ユーザー情報を初期セット
+                    if (loginUser) {
+                        setFormData((prev) => ({
+                            ...prev,
+                            address: loginUser.address ?? "",
+                            telephone: loginUser.telephone ?? "",
+                        }));
+                    }
                 }
             } catch (error) {
                 console.error("データ取得失敗:", error);
             }
         };
 
-        fetchData();
-    }, []);
+        initForm();
+    }, []); // 初回マウント時のみ実行
 
     // 登録処理の実行
     const handleSubmit = async () => {
