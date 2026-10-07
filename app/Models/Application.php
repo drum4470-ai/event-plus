@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Carbon\Carbon;
 
 class Application extends Model
 {
@@ -65,7 +64,6 @@ class Application extends Model
             'facility_slot_id'
         );
     }
-    
 
 
     public function purposes(): BelongsTo
@@ -97,14 +95,6 @@ class Application extends Model
         'application_id',
         'application_id'
         );
-    }
-
-        public function scopeExpiredTarget($query)
-    {
-        $threshold = Carbon::now()->subDay();
-
-        return $query->where('status', '申請済み') // 変更前のステータス
-                     ->where('usage_date', '<', $threshold);
     }
 }
 
