@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import api from "@/api";
 import ApplicationStepIndicator from "@/Components//ApplicationStepIndicator";
+import { useNavigate } from "react-router-dom";
 
 export default function ApplicationDetailModal({
     isOpen,
-    application: initialApplicationProp,
     applicationId,
     onClose,
     onUpdate,
     currentUser,
 }) {
+    const navigate = useNavigate();
     const [application, setApplication] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -261,6 +262,14 @@ export default function ApplicationDetailModal({
         : [];
 
     const canEdit = allowedStatuses.length > 0;
+    const handleDuplicate = () => {
+        navigate("/applications", {
+            state: {
+                mode: "duplicate",
+                application: application,
+            },
+        });
+    };
 
     const handleDelete = async () => {
         if (!confirm("本当にこの申請を削除しますか？")) {
@@ -283,7 +292,9 @@ export default function ApplicationDetailModal({
             alert("削除に失敗しました。");
         }
     };
-
+    const canCopy =
+        application?.status === "申請済み" ||
+        application?.status === "実施済み";
     const handleUpdate = async (e) => {
         e.preventDefault();
         const isStatusChanged = editForm.status !== initialStatus;
@@ -356,6 +367,7 @@ export default function ApplicationDetailModal({
     if (!isOpen || !applicationId) {
         return null;
     }
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2 sm:p-2">
             {" "}
@@ -398,6 +410,18 @@ export default function ApplicationDetailModal({
                                     "新規申請"}
                             </span>
                             <div>
+                                {/* <div className="space-x-2"> */}
+                                {canCopy && (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleDuplicate(application)
+                                        }
+                                        className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition"
+                                    >
+                                        複製
+                                    </button>
+                                )}
                                 {canEdit && !isEditing && (
                                     <div className="space-x-2">
                                         <button

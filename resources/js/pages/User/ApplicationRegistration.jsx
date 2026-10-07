@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api, { csrfApi } from "@/api";
 import BasicLayout from "@/Layouts/BasicLayout";
 
 export default function ApplicationRegistration() {
-    const [searchParams] = useSearchParams();
-    const isDuplicate = searchParams.get("mode") === "duplicate";
+    const location = useLocation();
     const navigate = useNavigate();
+
+    // 複製モードかどうか
+    const isDuplicate = location.state?.mode === "duplicate";
+
+    // 複製元の申請データ
+    const duplicateApplication = location.state?.application;
+
     const [data, setData] = useState({
         buildings: [],
         facilities: [],
@@ -36,7 +42,7 @@ export default function ApplicationRegistration() {
             try {
                 await csrfApi.get("/sanctum/csrf-cookie");
 
-                // 1. リレーションデータとユーザー情報を並行取得
+                // リレーションデータとユーザー情報を並行取得
                 const [relationsRes, userRes] = await Promise.all([
                     api.get("/user/applications/relations"),
                     api.get("/user/profile"),
@@ -44,7 +50,7 @@ export default function ApplicationRegistration() {
 
                 const resData = relationsRes.data.data ?? relationsRes.data;
 
-                // 2. マスターデータをセット
+                // マスターデータをセット
                 setData({
                     buildings: resData.buildings ?? [],
                     facilities: resData.facilities ?? [],
@@ -55,37 +61,64 @@ export default function ApplicationRegistration() {
 
                 const loginUser = userRes.data.data ?? userRes.data;
 
-                // 3. 複製モードかどうかを判定
-                const duplicateData = localStorage.getItem(
-                    "duplicateApplicationData",
-                );
-
-                if (duplicateData) {
-                    // 【複製モードの場合】localStorage のデータをベースにする
-                    const parsedData = JSON.parse(duplicateData);
+                // ==============================
+                // 複製モード
+                // ==============================
+                if (isDuplicate && duplicateApplication) {
                     setFormData({
-                        building_id: parsedData.building_id || "",
-                        facility_id: parsedData.facility_id || "",
-                        facility_slot_id: parsedData.facility_slot_id || "",
-                        purpose_id: parsedData.purpose_id || "",
-                        equipment_id: parsedData.equipment_id || [],
-                        event_name: parsedData.event_name || "",
-                        usage_date: parsedData.usage_date || "",
-                        address: parsedData.address || loginUser?.address || "",
+                        building_id:
+                            duplicateApplication.building_id ??
+                            duplicateApplication.facilities?.building_id ??
+                            "",
+
+                        facility_id:
+                            duplicateApplication.facility_id ??
+                            duplicateApplication.facilities?.facility_id ??
+                            "",
+
+                        facility_slot_id:
+                            duplicateApplication.facility_slot_id ??
+                            duplicateApplication.facility_slot
+                                ?.facility_slot_id ??
+                            "",
+
+                        purpose_id:
+                            duplicateApplication.purpose_id ??
+                            duplicateApplication.purpose?.purpose_id ??
+                            "",
+
+                        equipment_id:
+                            duplicateApplication.equipments?.map((eq) =>
+                                Number(eq.equipment_id ?? eq.id),
+                            ) ?? [],
+
+                        event_name: duplicateApplication.event_name ?? "",
+
+                        usage_date: "",
+
+                        address:
+                            duplicateApplication.address ??
+                            loginUser?.address ??
+                            "",
+
                         telephone:
-                            parsedData.telephone || loginUser?.telephone || "",
+                            duplicateApplication.telephone ??
+                            loginUser?.telephone ??
+                            "",
                     });
-                    // 使い終わったら削除
-                    localStorage.removeItem("duplicateApplicationData");
-                } else {
-                    // 【通常の新館作成モードの場合】ユーザー情報を初期セット
-                    if (loginUser) {
-                        setFormData((prev) => ({
-                            ...prev,
-                            address: loginUser.address ?? "",
-                            telephone: loginUser.telephone ?? "",
-                        }));
-                    }
+
+                    return;
+                }
+
+                // ==============================
+                // 通常の新規申請
+                // ==============================
+                if (loginUser) {
+                    setFormData((prev) => ({
+                        ...prev,
+                        address: loginUser.address ?? "",
+                        telephone: loginUser.telephone ?? "",
+                    }));
                 }
             } catch (error) {
                 console.error("データ取得失敗:", error);
@@ -93,13 +126,37 @@ export default function ApplicationRegistration() {
         };
 
         initForm();
-    }, []); // 初回マウント時のみ実行
+    }, [isDuplicate, duplicateApplication]);
+    const selectedEquipmentNames = data.equipments
+        .filter((eq) =>
+            formData.equipment_id.some(
+                (id) => String(id) === String(eq.equipment_id),
+            ),
+        )
+        .map((eq) => eq.name);
 
-    // 登録処理の実行
+    // 選択された施設・目的に紐づく設備IDのリスト
+    const selectedFacilityObj = (data.facilities ?? []).find(
+        (f) => String(f.facility_id) === String(formData.facility_id),
+    );
+
+    const matchedPurpose = selectedFacilityObj?.facility_purposes?.find(
+        (fp) => String(fp.purpose_id) === String(formData.purpose_id),
+    );
+
+    const availableEquipmentIds =
+        matchedPurpose?.facility_purpose_equipments?.map(
+            (fpe) => fpe.equipment_id,
+        ) ?? [];
+
+    // 登録処理
     const handleSubmit = async () => {
         setProcessing(true);
+
         try {
             await csrfApi.get("/sanctum/csrf-cookie");
+
+            // 複製の場合でも新規登録なので POST
             await api.post("/user/applications", formData);
 
             setConfirmModal(false);
@@ -111,50 +168,6 @@ export default function ApplicationRegistration() {
             setProcessing(false);
         }
     };
-
-    const selectedFacility = Array.isArray(data.facilities)
-        ? data.facilities.find(
-              (f) => Number(f.facility_id) === Number(formData.facility_id),
-          )
-        : data.facilities?.facility_id == formData.facility_id
-          ? data.facilities
-          : null;
-
-    const selectedBuildingName =
-        selectedFacility?.buildings?.name ||
-        data.buildings.find(
-            (b) => Number(b.building_id) === Number(formData.building_id),
-        )?.name;
-    const selectedFacilityName = data.facilities.find(
-        (f) => String(f.facility_id) === String(formData.facility_id),
-    )?.name;
-    const selectedPurposeName = data.purposes.find(
-        (p) => String(p.purpose_id) === String(formData.purpose_id),
-    )?.name;
-    const selectedSlot = data.slots.find(
-        (s) =>
-            String(s.facility_slot_id ?? s.slot_id) ===
-            String(formData.facility_slot_id),
-    );
-    const selectedSlotName = selectedSlot
-        ? (selectedSlot.name ??
-          `${selectedSlot.start_time} 〜 ${selectedSlot.end_time}`)
-        : null;
-    const selectedEquipmentNames = data.equipments
-        .filter((eq) => formData.equipment_id.includes(eq.equipment_id))
-        .map((eq) => eq.name);
-
-    // 選択された施設・目的に紐づく設備IDのリストを抽出
-    const selectedFacilityObj = (data.facilities ?? []).find(
-        (f) => String(f.facility_id) === String(formData.facility_id),
-    );
-    const matchedPurpose = selectedFacilityObj?.facility_purposes?.find(
-        (fp) => String(fp.purpose_id) === String(formData.purpose_id),
-    );
-    const availableEquipmentIds =
-        matchedPurpose?.facility_purpose_equipments?.map(
-            (fpe) => fpe.equipment_id,
-        ) ?? [];
 
     return (
         <BasicLayout>

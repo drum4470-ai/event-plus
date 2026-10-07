@@ -6,6 +6,7 @@ export default function ApplicationStepIndicator({ currentStatus }) {
         "社内確認",
         "申請手続き",
         "申請済み",
+        "実施済み",
     ];
 
     // 2. 現在のステータス文字列からインデックスを計算
@@ -49,7 +50,7 @@ export default function ApplicationStepIndicator({ currentStatus }) {
                             <div className="flex flex-col items-center">
                                 {/* 数字をなくしたミニマムな丸 */}
                                 <div
-                                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full transition-all ${
+                                    className={`w-4 h-4 sm:w-4 sm:h-4 rounded-full transition-all ${
                                         isCompleted
                                             ? "bg-blue-600"
                                             : isCurrent
