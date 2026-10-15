@@ -3,10 +3,11 @@ import UserDrawer from "@/Components/UserDrawer";
 import ApplicationDetailModal from "@/Components/ApplicationDetailModal";
 import api, { csrfApi } from "@/api";
 import BasicLayout from "@/Layouts/BasicLayout";
+import PaginationWrapper from "@/Layouts/PaginationWrapper";
 
 export default function UserDashboard() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [applications, setApplications] = useState([]);
+
     const [summary, setSummary] = useState({});
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -14,11 +15,21 @@ export default function UserDashboard() {
     const [filters, setFilters] = useState({ status: "", keyword: "" });
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
 
+    const [applications, setApplications] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
+    const totalPages = Math.ceil(applications.length / itemsPerPage);
+
+    // 安全策：データ件数が減ってcurrentPageが総ページ数を超えたら1ページ目に戻す
+    const safeCurrentPage =
+        currentPage > totalPages && totalPages > 0 ? 1 : currentPage;
+
+    const currentApplications = applications.slice(
+        (safeCurrentPage - 1) * itemsPerPage,
+        safeCurrentPage * itemsPerPage,
+    );
     const [selectedApplicationId, setSelectedApplicationId] = useState(null);
 
-    // 検索・フィルター用のステート
-
-    // ★ 修正2: filters をもとにパラメータを組み立ててダッシュボードAPIを叩く
     const fetchDashboardData = async () => {
         try {
             await csrfApi.get("/sanctum/csrf-cookie");
@@ -35,9 +46,6 @@ export default function UserDashboard() {
                 api.get("/user/profile"),
             ]);
 
-            // ★ ここでレスポンスの中身をコンソールに出力して確認
-            console.log("Dashboard Response:", dashboardRes.data);
-
             setSummary(dashboardRes.data.summary || {});
             setCurrentUser(profileRes.data.data ?? profileRes.data);
 
@@ -51,6 +59,7 @@ export default function UserDashboard() {
             setLoading(false);
         }
     };
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedFilters(filters);
@@ -59,10 +68,10 @@ export default function UserDashboard() {
     }, [filters]);
 
     useEffect(() => {
+        setCurrentPage(1); // フィルター変更時に1ページ目に戻す
         fetchDashboardData();
     }, [debouncedFilters]);
 
-    // サマリーカードをクリックしたときの処理（トグル切り替え）
     const handleCardClick = (statusKey) => {
         setFilters((prev) => ({
             ...prev,
@@ -76,13 +85,13 @@ export default function UserDashboard() {
         if (isNaN(date.getTime())) return dateString;
 
         const year = date.getFullYear();
-        // 0埋めして2桁にする（例: 9 -> "09"）
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
 
         return `${year}年${month}月${day}日`;
     };
 
+    // ★ 画面全体を止めるのは loading のときだけにする
     if (loading) return <div className="p-6 text-center">読み込み中...</div>;
 
     return (
@@ -107,7 +116,7 @@ export default function UserDashboard() {
                         </div>
                     )}
 
-                    {/* 進行状況のサマリーカード（クリックで絞り込み可能に） */}
+                    {/* 進行状況のサマリーカード */}
                     <div className="mb-8">
                         <h2 className="mb-4 text-xl font-bold text-gray-800">
                             申請の進行状況
@@ -125,7 +134,7 @@ export default function UserDashboard() {
                                     新規申請
                                 </p>
                                 <p className="text-2xl font-bold text-blue-600">
-                                    {summary.new ?? 0}{" "}
+                                    {summary.new ?? 0}
                                     <span className="text-sm font-normal text-gray-500">
                                         件
                                     </span>
@@ -143,7 +152,7 @@ export default function UserDashboard() {
                                     要修正
                                 </p>
                                 <p className="text-2xl font-bold text-blue-600">
-                                    {summary.revision ?? 0}{" "}
+                                    {summary.revision ?? 0}
                                     <span className="text-sm font-normal text-gray-500">
                                         件
                                     </span>
@@ -161,7 +170,7 @@ export default function UserDashboard() {
                                     担当確認中
                                 </p>
                                 <p className="text-2xl font-bold text-yellow-600">
-                                    {summary.staff_check ?? 0}{" "}
+                                    {summary.staff_check ?? 0}
                                     <span className="text-sm font-normal text-gray-500">
                                         件
                                     </span>
@@ -179,7 +188,7 @@ export default function UserDashboard() {
                                     社内確認中
                                 </p>
                                 <p className="text-2xl font-bold text-purple-600">
-                                    {summary.internal_check ?? 0}{" "}
+                                    {summary.internal_check ?? 0}
                                     <span className="text-sm font-normal text-gray-500">
                                         件
                                     </span>
@@ -197,7 +206,7 @@ export default function UserDashboard() {
                                     申請手続き中
                                 </p>
                                 <p className="text-2xl font-bold text-green-600">
-                                    {summary.processing ?? 0}{" "}
+                                    {summary.processing ?? 0}
                                     <span className="text-sm font-normal text-gray-500">
                                         件
                                     </span>
@@ -215,7 +224,7 @@ export default function UserDashboard() {
                                     申請済み
                                 </p>
                                 <p className="text-2xl font-bold text-green-600">
-                                    {summary.submitted ?? 0}{" "}
+                                    {summary.submitted ?? 0}
                                     <span className="text-sm font-normal text-gray-500">
                                         件
                                     </span>
@@ -233,7 +242,7 @@ export default function UserDashboard() {
                                     過去の申請
                                 </p>
                                 <p className="text-2xl font-bold text-green-600">
-                                    {summary.history ?? 0}{" "}
+                                    {summary.history ?? 0}
                                     <span className="text-sm font-normal text-gray-500">
                                         件
                                     </span>
@@ -242,7 +251,7 @@ export default function UserDashboard() {
                         </div>
                     </div>
 
-                    {/* 検索バーの設置例 */}
+                    {/* 検索バー */}
                     <div className="mb-6 flex gap-2 items-center">
                         <input
                             type="text"
@@ -271,76 +280,87 @@ export default function UserDashboard() {
 
                     {/* マイ申請一覧 */}
                     <h2 className="mb-4 text-xl font-bold text-gray-800">
-                        マイ申請一覧{" "}
+                        マイ申請一覧
                         {filters.status && (
                             <span className="text-blue-600 text-sm">
                                 （{filters.status}で絞り込み中）
                             </span>
                         )}
                     </h2>
+
                     {applications.length === 0 ? (
                         <p className="text-gray-500">
                             該当する申請はありません。
                         </p>
                     ) : (
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            {applications.map((data) => (
-                                <div
-                                    key={data.application_id ?? data.id}
-                                    onClick={() => {
-                                        setSelectedApplicationId(
-                                            data.application_id ?? data.id,
-                                        );
-                                    }}
-                                    className="rounded-lg border bg-white p-5 shadow-sm transition hover:shadow-md cursor-pointer hover:border-blue-300"
-                                >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm font-semibold text-blue-600">
-                                            {data.event_name ||
-                                                "イベント名未設定"}
-                                        </span>
-                                        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                                            {data.status || "ステータス未設定"}
-                                        </span>
-                                    </div>
+                        /* PaginationWrapper でグリッドカード群をラップする */
+                        <PaginationWrapper
+                            currentPage={safeCurrentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        >
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                {currentApplications.map((data) => (
+                                    <div
+                                        key={data.application_id ?? data.id}
+                                        onClick={() => {
+                                            setSelectedApplicationId(
+                                                data.application_id ?? data.id,
+                                            );
+                                        }}
+                                        className="rounded-lg border bg-white p-5 shadow-sm transition hover:shadow-md cursor-pointer hover:border-blue-300"
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm font-semibold text-blue-600">
+                                                {data.event_name ||
+                                                    "イベント名未設定"}
+                                            </span>
+                                            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                                                {data.status ||
+                                                    "ステータス未設定"}
+                                            </span>
+                                        </div>
 
-                                    <div className="space-y-1 text-sm text-gray-600">
-                                        <p>
-                                            <strong className="text-gray-700">
-                                                建物:
-                                            </strong>{" "}
-                                            {data.facilities?.buildings?.name ??
-                                                "未指定"}
-                                        </p>
-                                        <p>
-                                            <strong className="text-gray-700">
-                                                施設:
-                                            </strong>{" "}
-                                            {data.facilities?.name ?? "未指定"}
-                                        </p>
-                                        <p>
-                                            <strong className="text-gray-700">
-                                                利用目的:
-                                            </strong>{" "}
-                                            {data.purposes?.name ?? "未指定"}
-                                        </p>
-                                        <p>
-                                            <strong className="text-gray-700">
-                                                利用日:
-                                            </strong>{" "}
-                                            {formatDate(data.usage_date)}
-                                        </p>
-                                        <p>
-                                            <strong className="text-gray-700">
-                                                時間枠:
-                                            </strong>{" "}
-                                            {data.facility_slots?.slots?.name ??
-                                                "未指定"}
-                                        </p>
+                                        <div className="space-y-1 text-sm text-gray-600">
+                                            <p>
+                                                <strong className="text-gray-700">
+                                                    建物:
+                                                </strong>
+                                                {data.facilities?.buildings
+                                                    ?.name ?? "未指定"}
+                                            </p>
+                                            <p>
+                                                <strong className="text-gray-700">
+                                                    施設:
+                                                </strong>
+                                                {data.facilities?.name ??
+                                                    "未指定"}
+                                            </p>
+                                            <p>
+                                                <strong className="text-gray-700">
+                                                    利用目的:
+                                                </strong>
+                                                {data.purposes?.name ??
+                                                    "未指定"}
+                                            </p>
+                                            <p>
+                                                <strong className="text-gray-700">
+                                                    利用日:
+                                                </strong>
+                                                {formatDate(data.usage_date)}
+                                            </p>
+                                            <p>
+                                                <strong className="text-gray-700">
+                                                    時間枠:
+                                                </strong>
+                                                {data.facility_slots?.slots
+                                                    ?.name ?? "未指定"}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        </PaginationWrapper>
                     )}
                 </main>
 

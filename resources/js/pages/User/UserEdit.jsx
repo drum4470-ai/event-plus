@@ -92,7 +92,7 @@ export default function UserEdit() {
 
             // ★ 2. 更新用のエンドポイントにPUTまたはPOST（バックエンドのルート設計に合わせる）
             // PUT /user/profile や PUT /user など
-            await csrfApi.put("/user/registration", submitData);
+            await api.put("/user/profile", submitData);
 
             setMessage("プロフィールを更新しました。");
 

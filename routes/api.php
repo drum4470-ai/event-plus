@@ -51,7 +51,8 @@ Route::middleware('auth:admin')->prefix('administrator')->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
         Route::get('/dashboard', [UserDashboardController::class, 'index']);
         Route::get('/profile', [UserController::class, 'show']);
-        Route::apiResource('/edit', UserController::class);
+        Route::match(['put', 'patch'], '/profile', [UserController::class, 'update']);
+        // Route::apiResource('/edit', UserController::class);
         Route::get('/applications/relations', [RelationManagementController::class, 'index']);
         Route::get('/applications/{id}', [ApplicationController::class, 'show']);
         Route::apiResource('/applications', ApplicationController::class);

@@ -30,6 +30,7 @@ class ApplicationResource extends JsonResource
             'facilities' => $this->whenLoaded('facilities'),
             'purposes' => $this->whenLoaded('purposes'),
             'facility_slots' => $this->whenLoaded('facilitySlots'),
+            'users' => $this->whenLoaded('users'),
             'equipments' => $this->whenLoaded('equipments'),
             'application_comments' => $this->whenLoaded('applicationComments'),
             'created_at' => $this->created_at ? $this->created_at->format('Y-m-d') : null,

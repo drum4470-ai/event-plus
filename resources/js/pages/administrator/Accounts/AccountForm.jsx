@@ -173,7 +173,7 @@ export default function AccountForm({ editingAccount, onComplete }) {
     };
 
     return (
-        <div className="mb-8 rounded-lg border bg-white p-6 shadow">
+        <div className="mb-8  rounded-lg border bg-white p-6 shadow">
             <h2 className="mb-6 text-xl font-bold">
                 {editingAccount ? "アカウント編集" : "アカウント登録"}
             </h2>
@@ -186,115 +186,119 @@ export default function AccountForm({ editingAccount, onComplete }) {
 
             <form onSubmit={handleSubmit}>
                 {/* 名前 */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">名前</label>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">名前</label>
 
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* メール */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">
-                        メールアドレス
-                    </label>
+                    {/* メール */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">
+                            メールアドレス
+                        </label>
 
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* パスワード */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">
-                        {editingAccount
-                            ? "パスワード（変更する場合のみ）"
-                            : "パスワード"}
-                    </label>
+                    {/* パスワード */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">
+                            {editingAccount
+                                ? "パスワード（変更する場合のみ）"
+                                : "パスワード"}
+                        </label>
 
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required={!editingAccount}
-                    />
-                </div>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required={!editingAccount}
+                        />
+                    </div>
 
-                {/* 電話番号 */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">電話番号</label>
+                    {/* 電話番号 */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">
+                            電話番号
+                        </label>
 
-                    <input
-                        type="text"
-                        name="telephone"
-                        value={formData.telephone}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                        <input
+                            type="text"
+                            name="telephone"
+                            value={formData.telephone}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* 住所 */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">住所</label>
+                    {/* 住所 */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">住所</label>
 
-                    <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    />
-                </div>
+                        <input
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                    </div>
 
-                {/* 会社 */}
-                <div className="mb-4">
-                    <label className="mb-1 block font-medium">団体名</label>
+                    {/* 会社 */}
+                    <div className="mb-4">
+                        <label className="mb-1 block font-medium">団体名</label>
 
-                    <input
-                        type="text"
-                        name="company"
-                        value={formData.company}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                    />
-                </div>
+                        <input
+                            type="text"
+                            name="company"
+                            value={formData.company}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                        />
+                    </div>
 
-                {/* 権限 */}
-                <div className="mb-6">
-                    <label className="mb-1 block font-medium">権限</label>
+                    {/* 権限 */}
+                    <div className="mb-6">
+                        <label className="mb-1 block font-medium">権限</label>
 
-                    <select
-                        name="role"
-                        value={formData.role}
-                        onChange={handleChange}
-                        className="w-full rounded border p-2"
-                        required
-                    >
-                        <option value="">選択してください</option>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            className="w-full rounded border p-2"
+                            required
+                        >
+                            <option value="">選択してください</option>
 
-                        <option value="user">一般ユーザー</option>
+                            <option value="user">一般ユーザー</option>
 
-                        <option value="staff">担当者</option>
+                            <option value="staff">担当者</option>
 
-                        <option value="manager">承認者</option>
+                            <option value="manager">承認者</option>
 
-                        <option value="administrator">管理者</option>
-                    </select>
+                            <option value="administrator">管理者</option>
+                        </select>
+                    </div>
                 </div>
 
                 {/* ボタン */}

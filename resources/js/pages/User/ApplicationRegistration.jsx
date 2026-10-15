@@ -127,23 +127,62 @@ export default function ApplicationRegistration() {
 
         initForm();
     }, [isDuplicate, duplicateApplication]);
-    const selectedEquipmentNames = data.equipments
+
+    // ==============================
+    // 選択中のIDから名称やオブジェクトを逆引きする派生データ
+    // ==============================
+
+    // 1. 建物
+    const selectedBuilding = (data.buildings ?? []).find(
+        (b) => String(b.building_id ?? b.id) === String(formData.building_id),
+    );
+    const selectedBuildingName = selectedBuilding?.name ?? "";
+
+    // 2. 施設
+    const selectedFacilityObj = (data.facilities ?? []).find(
+        (f) => String(f.facility_id ?? f.id) === String(formData.facility_id),
+    );
+    const selectedFacilityName = selectedFacilityObj?.name ?? "";
+
+    // 3. 利用目的
+    const matchedPurpose = selectedFacilityObj?.facility_purposes?.find(
+        (fp) =>
+            String(fp.purpose_id ?? fp.purposes?.purpose_id) ===
+            String(formData.purpose_id),
+    );
+    // 施設目的リレーション経由、またはマスターの purposes から目的名を取得
+    const selectedPurposeName =
+        matchedPurpose?.purposes?.name ??
+        (data.purposes ?? []).find(
+            (p) => String(p.purpose_id ?? p.id) === String(formData.purpose_id),
+        )?.name ??
+        "";
+
+    // 4. 時間枠
+    const matchedSlot = selectedFacilityObj?.facility_slots?.find(
+        (fs) =>
+            String(fs.facility_slot_id ?? fs.id) ===
+            String(formData.facility_slot_id),
+    );
+    const slotInfo = matchedSlot?.slots;
+    const selectedSlotName = slotInfo
+        ? (slotInfo.name ?? `${slotInfo.start_time} 〜 ${slotInfo.end_time}`)
+        : ((data.slots ?? []).find(
+              (s) =>
+                  String(s.slot_id ?? s.id) ===
+                  String(formData.facility_slot_id),
+          )?.name ?? "");
+
+    // 5. 設備名リスト
+    const selectedEquipmentNames = (data.equipments ?? [])
         .filter((eq) =>
             formData.equipment_id.some(
-                (id) => String(id) === String(eq.equipment_id),
+                (id) => String(id) === String(eq.equipment_id ?? eq.id),
             ),
         )
         .map((eq) => eq.name);
 
-    // 選択された施設・目的に紐づく設備IDのリスト
-    const selectedFacilityObj = (data.facilities ?? []).find(
-        (f) => String(f.facility_id) === String(formData.facility_id),
-    );
-
-    const matchedPurpose = selectedFacilityObj?.facility_purposes?.find(
-        (fp) => String(fp.purpose_id) === String(formData.purpose_id),
-    );
-
+    // 6. 選択可能な設備IDのリスト
     const availableEquipmentIds =
         matchedPurpose?.facility_purpose_equipments?.map(
             (fpe) => fpe.equipment_id,
@@ -196,8 +235,8 @@ export default function ApplicationRegistration() {
                             <option value="">建物を選択してください</option>
                             {(data.buildings ?? []).map((building) => (
                                 <option
-                                    key={building.building_id}
-                                    value={building.building_id}
+                                    key={building.building_id ?? building.id}
+                                    value={building.building_id ?? building.id}
                                 >
                                     {building.name}
                                 </option>
@@ -232,8 +271,12 @@ export default function ApplicationRegistration() {
                                 )
                                 .map((facility) => (
                                     <option
-                                        key={facility.facility_id}
-                                        value={facility.facility_id}
+                                        key={
+                                            facility.facility_id ?? facility.id
+                                        }
+                                        value={
+                                            facility.facility_id ?? facility.id
+                                        }
                                     >
                                         {facility.name}
                                     </option>
@@ -262,7 +305,7 @@ export default function ApplicationRegistration() {
                                     data.facilities ?? []
                                 ).find(
                                     (f) =>
-                                        String(f.facility_id) ===
+                                        String(f.facility_id ?? f.id) ===
                                         String(formData.facility_id),
                                 );
                                 if (
@@ -275,11 +318,10 @@ export default function ApplicationRegistration() {
                                     (fp) => {
                                         const purpose = fp.purposes;
                                         if (!purpose) return null;
+                                        const pId =
+                                            purpose.purpose_id ?? purpose.id;
                                         return (
-                                            <option
-                                                key={purpose.purpose_id}
-                                                value={purpose.purpose_id}
-                                            >
+                                            <option key={pId} value={pId}>
                                                 {purpose.name}
                                             </option>
                                         );
@@ -303,43 +345,48 @@ export default function ApplicationRegistration() {
                                 (data.equipments ?? [])
                                     .filter((eq) =>
                                         availableEquipmentIds.includes(
-                                            eq.equipment_id,
+                                            eq.equipment_id ?? eq.id,
                                         ),
                                     )
-                                    .map((equipment) => (
-                                        <label
-                                            key={equipment.equipment_id}
-                                            className="flex items-center space-x-2"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                value={equipment.equipment_id}
-                                                checked={formData.equipment_id.includes(
-                                                    equipment.equipment_id,
-                                                )}
-                                                onChange={(e) => {
-                                                    const id = Number(
-                                                        e.target.value,
-                                                    );
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        equipment_id: e.target
-                                                            .checked
-                                                            ? [
-                                                                  ...prev.equipment_id,
-                                                                  id,
-                                                              ]
-                                                            : prev.equipment_id.filter(
-                                                                  (item) =>
-                                                                      item !==
+                                    .map((equipment) => {
+                                        const eqId =
+                                            equipment.equipment_id ??
+                                            equipment.id;
+                                        return (
+                                            <label
+                                                key={eqId}
+                                                className="flex items-center space-x-2"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    value={eqId}
+                                                    checked={formData.equipment_id.includes(
+                                                        Number(eqId),
+                                                    )}
+                                                    onChange={(e) => {
+                                                        const id = Number(
+                                                            e.target.value,
+                                                        );
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            equipment_id: e
+                                                                .target.checked
+                                                                ? [
+                                                                      ...prev.equipment_id,
                                                                       id,
-                                                              ),
-                                                    }));
-                                                }}
-                                            />
-                                            <span>{equipment.name}</span>
-                                        </label>
-                                    ))
+                                                                  ]
+                                                                : prev.equipment_id.filter(
+                                                                      (item) =>
+                                                                          item !==
+                                                                          id,
+                                                                  ),
+                                                        }));
+                                                    }}
+                                                />
+                                                <span>{equipment.name}</span>
+                                            </label>
+                                        );
+                                    })
                             )}
                             {formData.facility_id &&
                                 formData.purpose_id &&
@@ -371,7 +418,7 @@ export default function ApplicationRegistration() {
                                     data.facilities ?? []
                                 ).find(
                                     (f) =>
-                                        String(f.facility_id) ===
+                                        String(f.facility_id ?? f.id) ===
                                         String(formData.facility_id),
                                 );
                                 if (
@@ -387,11 +434,10 @@ export default function ApplicationRegistration() {
                                         const slotName =
                                             slot.name ??
                                             `${slot.start_time} 〜 ${slot.end_time}`;
+                                        const fsId =
+                                            fs.facility_slot_id ?? fs.id;
                                         return (
-                                            <option
-                                                key={fs.facility_slot_id}
-                                                value={fs.facility_slot_id}
-                                            >
+                                            <option key={fsId} value={fsId}>
                                                 {slotName}
                                             </option>
                                         );
